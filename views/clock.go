@@ -4,9 +4,11 @@ import (
 	"gowt/bubbles/help"
 	last_clock_in "gowt/bubbles/last-clock-in"
 	"gowt/bubbles/table"
+	"gowt/i18n"
 	"gowt/types"
 	"gowt/util"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/progress"
@@ -103,6 +105,9 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	_, cmd = c.lastClockIn.Update(msg)
 	cmds = append(cmds, cmd)
 
+	_, cmd = c.help.Update(msg)
+	cmds = append(cmds, cmd)
+
 	// Return the updated model to the Bubble Tea runtime for processing.
 	return c, tea.Batch(cmds...)
 }
@@ -120,7 +125,7 @@ func (c *Clock) View() string {
 
 	components := []string{}
 	components = append(components,
-		row("Es ist "+c.now+"."),
+		row(strings.Replace(i18n.Strings().CURRENT_TIME, "$time", c.now, 1)),
 		row(c.lastClockIn.View()),
 		row(c.progress.ViewAs(percent/100)),
 		row(elapsed+" ("+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),

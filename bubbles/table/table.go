@@ -1,6 +1,7 @@
 package table
 
 import (
+	"gowt/i18n"
 	"gowt/types"
 	"gowt/util"
 	"time"
@@ -29,10 +30,10 @@ func NewTable() Model {
 
 func createTable() table.Model {
 	columns := []table.Column{
-		{Title: "Beginn", Width: 10},
-		{Title: "Ende", Width: 10},
-		{Title: "Dauer", Width: 10},
-		{Title: "Saldo", Width: 10},
+		{Title: i18n.Strings().START, Width: 10},
+		{Title: i18n.Strings().END, Width: 10},
+		{Title: i18n.Strings().DURATION, Width: 10},
+		{Title: i18n.Strings().SUM, Width: 10},
 	}
 
 	t := table.New(
@@ -65,6 +66,10 @@ func (c *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg.(type) {
 
 	case util.TimeTickMsg, types.ClockInMsg, types.ClockOutMsg:
+		c.calculateTableRows()
+
+	case types.LanguageChangedMsg:
+		c.table = createTable()
 		c.calculateTableRows()
 	}
 

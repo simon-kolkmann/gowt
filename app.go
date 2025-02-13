@@ -1,6 +1,8 @@
 package main
 
 import (
+	"gowt/i18n"
+	"gowt/types"
 	"gowt/views"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -17,7 +19,7 @@ func NewApp() app {
 }
 
 func (a app) Init() tea.Cmd {
-	return nil
+	return setLanguage(i18n.LANG_GERMAN)
 }
 
 func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -32,8 +34,16 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return a, tea.Quit
 
-		}
+		case "ctrl+l":
+			if i18n.Selected == i18n.LANG_GERMAN {
+				cmds = append(cmds, setLanguage(i18n.LANG_ENGLISH))
+			}
 
+			if i18n.Selected == i18n.LANG_ENGLISH {
+				cmds = append(cmds, setLanguage(i18n.LANG_GERMAN))
+			}
+
+		}
 	}
 
 	var cmd tea.Cmd
@@ -46,4 +56,11 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (a app) View() string {
 	return a.clock.View()
+}
+
+func setLanguage(l i18n.Language) tea.Cmd {
+	return func() tea.Msg {
+		i18n.Selected = l
+		return types.LanguageChangedMsg(l)
+	}
 }

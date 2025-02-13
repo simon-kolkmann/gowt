@@ -1,7 +1,9 @@
 package last_clock_in
 
 import (
+	"gowt/i18n"
 	"gowt/types"
+	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -40,10 +42,13 @@ func (m *Model) View() string {
 	style := lipgloss.NewStyle().Bold(true)
 
 	if m.lastClockIn.IsZero() {
-		s := "Derzeit nicht eingestempelt."
+		s := i18n.Strings().CLOCKED_OUT
 		return style.Foreground(lipgloss.Color(types.Theme.Error)).Render(s)
 	}
 
-	s := "Eingestempelt seit " + m.lastClockIn.Format(time.TimeOnly) + " Uhr."
+	template := i18n.Strings().CLOCKED_IN
+	lastClockIn := m.lastClockIn.Format(time.TimeOnly)
+	s := strings.Replace(template, "$time", lastClockIn, 1)
+
 	return style.Foreground(lipgloss.Color(types.Theme.Success)).Render(s)
 }
