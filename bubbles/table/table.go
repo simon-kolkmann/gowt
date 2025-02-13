@@ -44,9 +44,10 @@ func createTable() table.Model {
 	s.Header = s.Header.
 		BorderStyle(lipgloss.NormalBorder()).
 		BorderForeground(lipgloss.Color(types.Theme.Primary)).
+		Foreground(lipgloss.Color(types.Theme.Text)).
 		BorderBottom(true)
 	s.Selected = s.Selected.
-		Foreground(lipgloss.Color(types.Theme.Primary)).
+		Foreground(lipgloss.Color(types.Theme.Text)).
 		Background(lipgloss.Color(types.Theme.Primary)).
 		Bold(false)
 	t.SetStyles(s)
