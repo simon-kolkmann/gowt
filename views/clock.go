@@ -89,10 +89,12 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 
 	case types.ClockInMsg:
+		c.progress.FullColor = types.Theme.Success
 		c.entries = append(c.entries, msg.Entry)
 		c.table.SetEntries(&c.entries)
 
 	case types.ClockOutMsg:
+		c.progress.FullColor = types.Theme.Error
 		c.entries[len(c.entries)-1].End = time.Now()
 		c.table.SetEntries(&c.entries)
 	}
