@@ -60,9 +60,8 @@ func createKeyMap() keyMap {
 }
 
 type Model struct {
-	keys    keyMap
-	help    help.Model
-	lastKey string
+	keys keyMap
+	help help.Model
 }
 
 func NewHelp() Model {
@@ -82,18 +81,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// If we set a width on the help menu it can gracefully truncate
 		// its view as needed.
 		m.help.Width = msg.Width
-
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, m.keys.Up):
-			m.lastKey = "↑"
-		case key.Matches(msg, m.keys.Down):
-			m.lastKey = "↓"
-		case key.Matches(msg, m.keys.Enter):
-			m.lastKey = "enter"
-		case key.Matches(msg, m.keys.Quit):
-			return m, tea.Quit
-		}
 
 	case types.LanguageChangedMsg:
 		m.keys = createKeyMap()
