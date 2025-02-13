@@ -16,15 +16,14 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const TARGET_DURATION time.Duration = time.Duration((time.Hour * 7) + (time.Minute * 42))
-
 type Clock struct {
-	now         string
-	entries     []types.Entry
-	progress    progress.Model
-	table       table.Model
-	lastClockIn last_clock_in.Model
-	help        help.Model
+	now            string
+	entries        []types.Entry
+	progress       progress.Model
+	table          table.Model
+	lastClockIn    last_clock_in.Model
+	help           help.Model
+	targetDuration time.Duration
 }
 
 func NewClock() Clock {
@@ -35,9 +34,10 @@ func NewClock() Clock {
 			progress.WithWidth(50),
 			progress.WithoutPercentage(),
 		),
-		table:       table.NewTable(),
-		lastClockIn: last_clock_in.NewLastClockIn(),
-		help:        help.NewHelp(),
+		table:          table.NewTable(),
+		lastClockIn:    last_clock_in.NewLastClockIn(),
+		help:           help.NewHelp(),
+		targetDuration: time.Duration((time.Hour * 7) + (time.Minute * 42)),
 	}
 }
 
@@ -82,6 +82,9 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case util.TimeTickMsg:
 		c.now = string(msg)
 
+	case types.TargetDurationChangedMsg:
+		c.targetDuration = time.Duration(msg)
+
 	// FrameMsg is sent when the progress bar wants to animate itself
 	case progress.FrameMsg:
 		progressModel, cmd := c.progress.Update(msg)
@@ -115,12 +118,6 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (c *Clock) View() string {
-	box := lipgloss.
-		NewStyle().
-		Padding(1, 2, 0, 2).
-		Margin(1).
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color(types.Theme.Primary))
 	row := lipgloss.NewStyle().Margin(0, 0, 1, 0).Render
 
 	elapsed, percent := c.getElapsedTime()
@@ -130,22 +127,16 @@ func (c *Clock) View() string {
 		row(strings.Replace(i18n.Strings().CURRENT_TIME, "$time", c.now, 1)),
 		row(c.lastClockIn.View()),
 		row(c.progress.ViewAs(percent/100)),
-		row(elapsed+" ("+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
+		row(elapsed+" / "+c.targetDuration.String()+" ("+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
 	)
 
 	if len(c.entries) > 0 {
 		components = append(components, row(c.table.View()))
 	}
 
-	return box.Render(
-		lipgloss.JoinVertical(
-			lipgloss.Left,
-			lipgloss.JoinVertical(
-				lipgloss.Center,
-				components...,
-			),
-			c.help.View(),
-		),
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		components...,
 	)
 }
 
@@ -156,7 +147,7 @@ func (c Clock) getElapsedTime() (string, float64) {
 		elapsed += entry.Duration()
 	}
 
-	percent := elapsed.Seconds() / (TARGET_DURATION.Seconds() / 100)
+	percent := elapsed.Seconds() / (c.targetDuration.Seconds() / 100)
 
 	return elapsed.String(), percent
 }

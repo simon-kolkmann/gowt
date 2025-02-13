@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gowt/bubbles/help"
 	"gowt/i18n"
 	"gowt/types"
 	"gowt/views"
@@ -8,12 +9,16 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/davecgh/go-spew/spew"
 )
 
 type app struct {
-	dump  io.Writer
-	clock views.Clock
+	dump       io.Writer
+	clock      views.Clock
+	settings   views.Settings
+	help       help.Model
+	activeView types.View
 }
 
 func NewApp() app {
@@ -27,8 +32,11 @@ func NewApp() app {
 	}
 
 	return app{
-		clock: views.NewClock(),
-		dump:  dump,
+		clock:      views.NewClock(),
+		settings:   views.NewSettings(),
+		help:       help.NewHelp(),
+		activeView: types.ViewClock,
+		dump:       dump,
 	}
 }
 
@@ -41,6 +49,7 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		spew.Fdump(a.dump, msg)
 	}
 
+	var cmd tea.Cmd
 	cmds := make([]tea.Cmd, 0)
 
 	switch msg := msg.(type) {
@@ -61,24 +70,83 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, setLanguage(i18n.LANG_GERMAN))
 			}
 
+		case "ctrl+left":
+			if a.activeView > types.ViewSettings {
+				a.activeView--
+			}
+
+			cmds = append(cmds, sendViewChangedMsg(a.activeView))
+
+		case "ctrl+right":
+			if a.activeView < types.ViewClock {
+				a.activeView++
+			}
+
+			cmds = append(cmds, sendViewChangedMsg(a.activeView))
+
 		}
+
+	case types.TargetDurationChangedMsg:
+		_, cmd = a.clock.Update(msg)
+		cmds = append(cmds, cmd)
 	}
 
-	var cmd tea.Cmd
+	if a.activeView == types.ViewClock {
+		_, cmd = a.clock.Update(msg)
+		cmds = append(cmds, cmd)
+	}
 
-	_, cmd = a.clock.Update(msg)
+	if a.activeView == types.ViewSettings {
+		_, cmd = a.settings.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+
+	// always visible
+	_, cmd = a.help.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return a, tea.Batch(cmds...)
 }
 
 func (a app) View() string {
-	return a.clock.View()
+	var activeView string
+
+	switch a.activeView {
+	case types.ViewClock:
+		activeView = a.clock.View()
+
+	case types.ViewSettings:
+		activeView = a.settings.View()
+
+	default:
+		activeView = "no active view"
+	}
+
+	box := lipgloss.
+		NewStyle().
+		Padding(1, 2, 0, 2).
+		Margin(1).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color(types.Theme.Primary))
+
+	return box.Render(
+		lipgloss.JoinVertical(
+			lipgloss.Center,
+			activeView,
+			a.help.View(),
+		),
+	)
 }
 
-func setLanguage(l i18n.Language) tea.Cmd {
+func setLanguage(l types.Language) tea.Cmd {
 	return func() tea.Msg {
 		i18n.Selected = l
 		return types.LanguageChangedMsg(l)
+	}
+}
+
+func sendViewChangedMsg(v types.View) tea.Cmd {
+	return func() tea.Msg {
+		return types.ViewChangedMsg(v)
 	}
 }

@@ -14,6 +14,8 @@ import (
 type keyMap struct {
 	Up             key.Binding
 	Down           key.Binding
+	CtrlLeft       key.Binding
+	CtrlRight      key.Binding
 	Enter          key.Binding
 	Quit           key.Binding
 	ChangeLanguage key.Binding
@@ -23,17 +25,13 @@ type keyMap struct {
 // key.Map interface.
 func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.Enter, k.ChangeLanguage, k.Quit}, // first column
-		{k.Up, k.Down},                      // second column
+		{k.CtrlLeft, k.CtrlRight, k.ChangeLanguage, k.Quit}, // first column
+		{k.Enter, k.Up, k.Down},                             // second column
 	}
 }
 
-func createKeyMap() keyMap {
-	return keyMap{
-		Enter: key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", i18n.Strings().HELP_CLOCK_IN_OUT),
-		),
+func createKeyMap(view types.View) keyMap {
+	m := keyMap{
 		Up: key.NewBinding(
 			key.WithKeys("up"),
 			key.WithHelp("↑", i18n.Strings().HELP_MOVE_UP),
@@ -51,17 +49,47 @@ func createKeyMap() keyMap {
 			key.WithHelp(i18n.Strings().HELP_CHANGE_LANG_KEY, i18n.Strings().HELP_CHANGE_LANG),
 		),
 	}
+
+	if view == types.ViewSettings {
+		m.Enter = key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", i18n.Strings().HELP_SUBMIT),
+		)
+
+		m.CtrlRight = key.NewBinding(
+			key.WithKeys("ctrl+right"),
+			key.WithHelp(i18n.Strings().HELP_NEXT_VIEW_KEY, i18n.Strings().HELP_VIEW_NAME(types.ViewClock)),
+		)
+	}
+
+	if view == types.ViewClock {
+		m.Enter = key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", i18n.Strings().HELP_CLOCK_IN_OUT),
+		)
+
+		m.CtrlLeft = key.NewBinding(
+			key.WithKeys("ctrl+left"),
+			key.WithHelp(i18n.Strings().HELP_PREV_VIEW_KEY, i18n.Strings().HELP_VIEW_NAME(types.ViewSettings)),
+		)
+	}
+
+	return m
 }
 
 type Model struct {
-	keys keyMap
-	help help.Model
+	activeView types.View
+	keys       keyMap
+	help       help.Model
 }
 
 func NewHelp() Model {
+	initialView := types.ViewClock
+
 	return Model{
-		keys: createKeyMap(),
-		help: help.New(),
+		activeView: initialView,
+		keys:       createKeyMap(initialView),
+		help:       help.New(),
 	}
 }
 
@@ -77,7 +105,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.help.Width = msg.Width
 
 	case types.LanguageChangedMsg:
-		m.keys = createKeyMap()
+		m.keys = createKeyMap(m.activeView)
+
+	case types.ViewChangedMsg:
+		m.activeView = types.View(msg)
+		m.keys = createKeyMap(m.activeView)
 	}
 
 	return m, nil

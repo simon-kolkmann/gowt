@@ -1,6 +1,6 @@
 package types
 
-import "gowt/i18n"
+import "time"
 
 type ClockInMsg struct {
 	Entry Entry
@@ -10,4 +10,8 @@ type ClockOutMsg struct {
 	Entry Entry
 }
 
-type LanguageChangedMsg i18n.Language
+type LanguageChangedMsg Language
+
+type ViewChangedMsg View
+
+type TargetDurationChangedMsg time.Duration
