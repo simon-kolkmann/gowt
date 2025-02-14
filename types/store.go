@@ -5,7 +5,7 @@ import (
 )
 
 type Store struct {
-	Date         time.Time     `json:"date"`
-	HoursPerWeek time.Duration `json:"hoursPerWeek"`
-	Entries      []Entry       `json:"entries"`
+	Date        time.Time     `json:"date"`
+	HoursPerDay time.Duration `json:"hoursPerDay"`
+	Entries     []Entry       `json:"entries"`
 }

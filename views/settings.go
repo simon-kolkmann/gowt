@@ -12,47 +12,47 @@ import (
 )
 
 type Settings struct {
-	hoursPerWeek textinput.Model
+	hoursPerDay textinput.Model
 }
 
 func NewSettings() Settings {
-	hoursPerWeek := textinput.New()
-	hoursPerWeek.Placeholder = "1h23m4s"
-	hoursPerWeek.CharLimit = 10
-	hoursPerWeek.Focus()
+	hoursPerDay := textinput.New()
+	hoursPerDay.Placeholder = "1h23m4s"
+	hoursPerDay.CharLimit = 10
+	hoursPerDay.Focus()
 
 	return Settings{
-		hoursPerWeek: hoursPerWeek,
+		hoursPerDay: hoursPerDay,
 	}
 }
 
 func (s *Settings) Init() tea.Cmd {
-	return s.hoursPerWeek.Cursor.BlinkCmd()
+	return s.hoursPerDay.Cursor.BlinkCmd()
 }
 
 func (s *Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	s.hoursPerWeek, cmd = s.hoursPerWeek.Update(msg)
+	s.hoursPerDay, cmd = s.hoursPerDay.Update(msg)
 
 	switch msg.(type) {
 	case tea.KeyMsg:
-		return s, changeTargetDurationIfValid(s.hoursPerWeek.Value())
+		return s, changeTargetDurationIfValid(s.hoursPerDay.Value())
 
 	case types.ViewChangedMsg:
-		s.hoursPerWeek.SetValue(util.Store.HoursPerWeek.String())
-		s.hoursPerWeek.CursorEnd()
+		s.hoursPerDay.SetValue(util.Store.HoursPerDay.String())
+		s.hoursPerDay.CursorEnd()
 	}
 
 	return s, cmd
 }
 
 func (s *Settings) View() string {
-	s.hoursPerWeek.Prompt = i18n.Strings().HOURS_PER_WEEK_LABEL + ":\n"
+	s.hoursPerDay.Prompt = i18n.Strings().HOURS_PER_DAY_LABEL + ":\n"
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		i18n.Strings().VIEW_CAPTION_SETTINGS+"\n",
-		s.hoursPerWeek.View()+"\n",
+		s.hoursPerDay.View()+"\n",
 	)
 }
 
@@ -63,7 +63,7 @@ func changeTargetDurationIfValid(d string) tea.Cmd {
 		return nil
 	}
 
-	util.Store.HoursPerWeek = duration
+	util.Store.HoursPerDay = duration
 
 	return util.SendStoreChangedMsg
 }

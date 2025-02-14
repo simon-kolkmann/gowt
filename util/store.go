@@ -41,7 +41,7 @@ func loadFromFileOrUseDefaults(s *types.Store) {
 
 	if err != nil {
 		s.Date = time.Now()
-		s.HoursPerWeek = time.Duration(time.Hour * 8)
+		s.HoursPerDay = time.Duration(time.Hour * 8)
 		s.Entries = make([]types.Entry, 0)
 	}
 

@@ -17,7 +17,7 @@ type strings struct {
 	CLOCKED_OUT  string
 
 	VIEW_CAPTION_SETTINGS string
-	HOURS_PER_WEEK_LABEL  string
+	HOURS_PER_DAY_LABEL   string
 
 	HELP_CLOCK_IN_OUT    string
 	HELP_QUIT            string
@@ -41,7 +41,7 @@ var german strings = strings{
 	CLOCKED_OUT:  "Derzeit nicht eingestempelt.",
 
 	VIEW_CAPTION_SETTINGS: "Einstellungen",
-	HOURS_PER_WEEK_LABEL:  "Wochenarbeitszeit",
+	HOURS_PER_DAY_LABEL:   "tägliche Arbeitszeit",
 
 	HELP_CLOCK_IN_OUT:  "ein- und ausstempeln",
 	HELP_QUIT:          "beenden",
@@ -77,7 +77,7 @@ var english strings = strings{
 	CLOCKED_OUT:  "Currently not clocked in.",
 
 	VIEW_CAPTION_SETTINGS: "Settings",
-	HOURS_PER_WEEK_LABEL:  "Weekly work time",
+	HOURS_PER_DAY_LABEL:   "Daily work time",
 
 	HELP_CLOCK_IN_OUT:  "clock in/out",
 	HELP_QUIT:          "quit",
