@@ -93,7 +93,7 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		}
 
-	case types.TargetDurationChangedMsg:
+	case types.StoreChangedMsg:
 		_, cmd = a.clock.Update(msg)
 		cmds = append(cmds, cmd)
 	}

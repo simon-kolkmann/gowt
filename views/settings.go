@@ -2,7 +2,7 @@ package views
 
 import (
 	"gowt/i18n"
-	"gowt/types"
+	"gowt/util"
 	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -61,7 +61,10 @@ func changeTargetDuration(d string) tea.Cmd {
 		return nil
 	}
 
+	util.Store.HoursPerWeek = duration
+
 	return func() tea.Msg {
-		return types.TargetDurationChangedMsg(duration)
+		return util.SendStoreChangedMsg()
 	}
+
 }
