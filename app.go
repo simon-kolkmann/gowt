@@ -21,6 +21,8 @@ type app struct {
 	settings   views.Settings
 	help       help.Model
 	activeView types.View
+	width      int
+	height     int
 }
 
 func NewApp() app {
@@ -66,6 +68,10 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds := make([]tea.Cmd, 0)
 
 	switch msg := msg.(type) {
+
+	case tea.WindowSizeMsg:
+		a.height = msg.Height
+		a.width = msg.Width
 
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -138,18 +144,28 @@ func (a app) View() string {
 		activeView = "no active view"
 	}
 
+	footer := lipgloss.NewStyle().
+		Align(lipgloss.Center).
+		Width(a.width - 6).
+		Render(a.help.View())
+
+	content := lipgloss.NewStyle().
+		Width(a.width - 6).
+		Height(a.height - lipgloss.Height(footer) - 4).
+		Align(lipgloss.Center).
+		Render(activeView)
+
 	box := lipgloss.
-		NewStyle().
+		NewStyle().Align(lipgloss.Center).
 		Padding(1, 2, 0, 2).
-		Margin(1).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color(types.Theme.Primary))
 
 	return box.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Center,
-			activeView,
-			a.help.View(),
+			content,
+			footer,
 		),
 	)
 }
