@@ -84,7 +84,7 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		c.now = string(msg)
 
 	case types.StoreChangedMsg:
-		c.targetDuration = msg.HoursPerDay
+		c.targetDuration = msg.Store.HoursPerDay
 		c.entries = util.Store.Entries
 		c.table.SetEntries(&c.entries)
 

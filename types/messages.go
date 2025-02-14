@@ -12,4 +12,6 @@ type LanguageChangedMsg Language
 
 type ViewChangedMsg View
 
-type StoreChangedMsg Store
+type StoreChangedMsg struct {
+	Store Store
+}

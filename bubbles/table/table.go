@@ -73,7 +73,7 @@ func (c *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		c.calculateTableRows()
 
 	case types.StoreChangedMsg:
-		c.entries = msg.Entries
+		c.entries = msg.Store.Entries
 		c.calculateTableRows()
 	}
 

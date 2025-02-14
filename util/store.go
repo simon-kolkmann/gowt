@@ -25,7 +25,9 @@ func InitStore() {
 
 func SendStoreChangedMsg() tea.Msg {
 	saveToFile(&Store)
-	return types.StoreChangedMsg(Store)
+	return types.StoreChangedMsg{
+		Store: Store,
+	}
 }
 
 func getFilePath() string {
