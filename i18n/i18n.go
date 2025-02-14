@@ -27,7 +27,6 @@ type strings struct {
 	HELP_NEXT_VIEW_KEY   string
 	HELP_PREV_VIEW_KEY   string
 	HELP_VIEW_NAME       func(v types.View) string
-	HELP_SUBMIT          string
 	HELP_CHANGE_LANG     string
 	HELP_CHANGE_LANG_KEY string
 }
@@ -64,7 +63,6 @@ var german strings = strings{
 
 		}
 	},
-	HELP_SUBMIT:          "bestätigen",
 	HELP_CHANGE_LANG:     "sprache wechseln",
 	HELP_CHANGE_LANG_KEY: "strg+l",
 }
@@ -101,7 +99,6 @@ var english strings = strings{
 
 		}
 	},
-	HELP_SUBMIT:          "submit",
 	HELP_CHANGE_LANG:     "change language",
 	HELP_CHANGE_LANG_KEY: "ctrl+l",
 }

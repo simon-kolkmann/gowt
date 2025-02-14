@@ -51,11 +51,6 @@ func createKeyMap(view types.View) keyMap {
 	}
 
 	if view == types.ViewSettings {
-		m.Enter = key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", i18n.Strings().HELP_SUBMIT),
-		)
-
 		m.CtrlRight = key.NewBinding(
 			key.WithKeys("ctrl+right"),
 			key.WithHelp(i18n.Strings().HELP_NEXT_VIEW_KEY, i18n.Strings().HELP_VIEW_NAME(types.ViewClock)),

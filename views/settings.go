@@ -33,12 +33,10 @@ func (s *Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	s.hoursPerWeek, cmd = s.hoursPerWeek.Update(msg)
 
-	switch msg := msg.(type) {
+	switch msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "enter":
-			return s, changeTargetDuration(s.hoursPerWeek.Value())
-		}
+		return s, changeTargetDurationIfValid(s.hoursPerWeek.Value())
+
 	}
 
 	return s, cmd
@@ -54,7 +52,7 @@ func (s *Settings) View() string {
 	)
 }
 
-func changeTargetDuration(d string) tea.Cmd {
+func changeTargetDurationIfValid(d string) tea.Cmd {
 	duration, err := time.ParseDuration(d)
 
 	if err != nil {
