@@ -19,16 +19,20 @@ type strings struct {
 	VIEW_CAPTION_SETTINGS string
 	HOURS_PER_DAY_LABEL   string
 
-	HELP_CLOCK_IN_OUT    string
-	HELP_QUIT            string
-	HELP_QUIT_KEY        string
-	HELP_MOVE_UP         string
-	HELP_MOVE_DOWN       string
-	HELP_NEXT_VIEW_KEY   string
-	HELP_PREV_VIEW_KEY   string
-	HELP_VIEW_NAME       func(v types.View) string
-	HELP_CHANGE_LANG     string
-	HELP_CHANGE_LANG_KEY string
+	HELP_CLOCK_IN_OUT           string
+	HELP_QUIT                   string
+	HELP_QUIT_KEY               string
+	HELP_MOVE_UP                string
+	HELP_MOVE_DOWN              string
+	HELP_NEXT_VIEW_KEY          string
+	HELP_PREV_VIEW_KEY          string
+	HELP_VIEW_NAME              func(v types.View) string
+	HELP_CHANGE_LANG            string
+	HELP_CHANGE_LANG_KEY        string
+	HELP_DELETE_ENTRY           string
+	HELP_DELETE_ENTRY_KEY       string
+	HELP_DELETE_ALL_ENTRIES     string
+	HELP_DELETE_ALL_ENTRIES_KEY string
 }
 
 var german strings = strings{
@@ -63,8 +67,12 @@ var german strings = strings{
 
 		}
 	},
-	HELP_CHANGE_LANG:     "sprache wechseln",
-	HELP_CHANGE_LANG_KEY: "strg+l",
+	HELP_CHANGE_LANG:            "sprache wechseln",
+	HELP_CHANGE_LANG_KEY:        "strg+l",
+	HELP_DELETE_ENTRY:           "eintrag löschen",
+	HELP_DELETE_ENTRY_KEY:       "entf",
+	HELP_DELETE_ALL_ENTRIES:     "alle einträge löschen",
+	HELP_DELETE_ALL_ENTRIES_KEY: "alt+entf",
 }
 
 var english strings = strings{
@@ -99,8 +107,12 @@ var english strings = strings{
 
 		}
 	},
-	HELP_CHANGE_LANG:     "change language",
-	HELP_CHANGE_LANG_KEY: "ctrl+l",
+	HELP_CHANGE_LANG:            "change language",
+	HELP_CHANGE_LANG_KEY:        "ctrl+l",
+	HELP_DELETE_ENTRY:           "delete entry",
+	HELP_DELETE_ENTRY_KEY:       "del",
+	HELP_DELETE_ALL_ENTRIES:     "delete all entries",
+	HELP_DELETE_ALL_ENTRIES_KEY: "alt+del",
 }
 
 var Selected types.Language

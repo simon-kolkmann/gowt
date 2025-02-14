@@ -19,6 +19,8 @@ type keyMap struct {
 	Enter          key.Binding
 	Quit           key.Binding
 	ChangeLanguage key.Binding
+	Delete         key.Binding
+	AltDelete      key.Binding
 }
 
 // FullHelp returns keybindings for the expanded help view. It's part of the
@@ -26,7 +28,7 @@ type keyMap struct {
 func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.CtrlLeft, k.CtrlRight, k.ChangeLanguage, k.Quit}, // first column
-		{k.Enter, k.Up, k.Down},                             // second column
+		{k.Enter, k.Delete, k.AltDelete, k.Up, k.Down},      // second column
 	}
 }
 
@@ -63,6 +65,16 @@ func createKeyMap(view types.View) keyMap {
 		m.Enter = key.NewBinding(
 			key.WithKeys("enter"),
 			key.WithHelp("enter", i18n.Strings().HELP_CLOCK_IN_OUT),
+		)
+
+		m.Delete = key.NewBinding(
+			key.WithKeys("delete"),
+			key.WithHelp(i18n.Strings().HELP_DELETE_ENTRY_KEY, i18n.Strings().HELP_DELETE_ENTRY),
+		)
+
+		m.AltDelete = key.NewBinding(
+			key.WithKeys("alt+delete"),
+			key.WithHelp(i18n.Strings().HELP_DELETE_ALL_ENTRIES_KEY, i18n.Strings().HELP_DELETE_ALL_ENTRIES),
 		)
 
 		m.CtrlLeft = key.NewBinding(

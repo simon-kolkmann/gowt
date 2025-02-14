@@ -5,8 +5,8 @@ import (
 )
 
 type Entry struct {
-	Start time.Time
-	End   time.Time
+	Start time.Time `json:"start"`
+	End   time.Time `json:"end"`
 }
 
 func (e *Entry) Duration() time.Duration {

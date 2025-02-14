@@ -62,8 +62,31 @@ func (c *Model) Init() tea.Cmd {
 
 func (c *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+	var cmds []tea.Cmd = make([]tea.Cmd, 0)
 
 	switch msg := msg.(type) {
+
+	case tea.KeyMsg:
+		switch msg.String() {
+
+		case "delete":
+			entries := make([]types.Entry, 0)
+			cursor := c.table.Cursor()
+			entryIndex := len(util.Store.Entries) - 1 - cursor
+
+			for i, entry := range util.Store.Entries {
+				if i != entryIndex {
+					entries = append(entries, entry)
+				}
+			}
+
+			util.Store.Entries = entries
+			cmds = append(cmds, util.SendStoreChangedMsg)
+
+		case "alt+delete":
+			util.Store.Entries = make([]types.Entry, 0)
+			cmds = append(cmds, util.SendStoreChangedMsg)
+		}
 
 	case util.TimeTickMsg, types.ClockInMsg, types.ClockOutMsg:
 		c.calculateTableRows()
@@ -78,8 +101,9 @@ func (c *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	c.table, cmd = c.table.Update(msg)
+	cmds = append(cmds, cmd)
 
-	return c, cmd
+	return c, tea.Batch(cmds...)
 }
 
 func (c *Model) View() string {

@@ -63,11 +63,12 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "enter":
 			if util.Store.LastClockIn().IsZero() {
-				cmds = append(cmds, clockIn(types.Entry{Start: time.Now()}))
+				cmds = append(cmds, clockIn(types.Entry{
+					Start: time.Now(),
+				}))
 			} else {
 				cmds = append(cmds, clockOut)
 			}
-
 		}
 
 	case util.TimeTickMsg:
