@@ -32,14 +32,6 @@ func (k keyMap) FullHelp() [][]key.Binding {
 
 func createKeyMap(view types.View) keyMap {
 	m := keyMap{
-		Up: key.NewBinding(
-			key.WithKeys("up"),
-			key.WithHelp("↑", i18n.Strings().HELP_MOVE_UP),
-		),
-		Down: key.NewBinding(
-			key.WithKeys("down"),
-			key.WithHelp("↓", i18n.Strings().HELP_MOVE_DOWN),
-		),
 		Quit: key.NewBinding(
 			key.WithKeys("q"),
 			key.WithHelp(i18n.Strings().HELP_QUIT_KEY, i18n.Strings().HELP_QUIT),
@@ -58,6 +50,16 @@ func createKeyMap(view types.View) keyMap {
 	}
 
 	if view == types.ViewClock {
+		m.Up = key.NewBinding(
+			key.WithKeys("up"),
+			key.WithHelp("↑", i18n.Strings().HELP_MOVE_UP),
+		)
+
+		m.Down = key.NewBinding(
+			key.WithKeys("down"),
+			key.WithHelp("↓", i18n.Strings().HELP_MOVE_DOWN),
+		)
+
 		m.Enter = key.NewBinding(
 			key.WithKeys("enter"),
 			key.WithHelp("enter", i18n.Strings().HELP_CLOCK_IN_OUT),
