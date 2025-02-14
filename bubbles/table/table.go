@@ -63,13 +63,17 @@ func (c *Model) Init() tea.Cmd {
 func (c *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg.(type) {
+	switch msg := msg.(type) {
 
 	case util.TimeTickMsg, types.ClockInMsg, types.ClockOutMsg:
 		c.calculateTableRows()
 
 	case types.LanguageChangedMsg:
 		c.table = createTable()
+		c.calculateTableRows()
+
+	case types.StoreChangedMsg:
+		c.entries = msg.Entries
 		c.calculateTableRows()
 	}
 

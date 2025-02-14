@@ -43,7 +43,13 @@ func NewApp() app {
 }
 
 func (a app) Init() tea.Cmd {
-	return setLanguage(i18n.LANG_GERMAN)
+	util.InitStore()
+
+	return tea.Batch(
+		util.SendStoreChangedMsg,
+		setLanguage(i18n.LANG_GERMAN),
+	)
+
 }
 
 func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -95,6 +101,9 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case types.StoreChangedMsg:
 		_, cmd = a.clock.Update(msg)
+		cmds = append(cmds, cmd)
+
+		_, cmd = a.settings.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 

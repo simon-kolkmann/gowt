@@ -58,6 +58,7 @@ func (c *Clock) Init() tea.Cmd {
 }
 
 func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
 	cmds := make([]tea.Cmd, 0)
 
 	switch msg := msg.(type) {
@@ -84,6 +85,8 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case types.StoreChangedMsg:
 		c.targetDuration = msg.HoursPerWeek
+		c.entries = util.Store.Entries
+		c.table.SetEntries(&c.entries)
 
 	// FrameMsg is sent when the progress bar wants to animate itself
 	case progress.FrameMsg:
@@ -94,15 +97,16 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case types.ClockInMsg:
 		c.progress.FullColor = types.Theme.Success
 		c.entries = append(c.entries, msg.Entry)
-		c.table.SetEntries(&c.entries)
+		util.Store.Entries = c.entries
+		cmds = append(cmds, util.SendStoreChangedMsg)
 
 	case types.ClockOutMsg:
 		c.progress.FullColor = types.Theme.Error
 		c.entries[len(c.entries)-1].End = time.Now()
-		c.table.SetEntries(&c.entries)
-	}
+		util.Store.Entries = c.entries
+		cmds = append(cmds, util.SendStoreChangedMsg)
 
-	var cmd tea.Cmd
+	}
 
 	_, cmd = c.table.Update(msg)
 	cmds = append(cmds, cmd)

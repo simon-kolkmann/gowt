@@ -1,8 +1,11 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 type Store struct {
-	HoursPerWeek time.Duration
-	Entries      []Entry
+	Date         time.Time     `json:"date"`
+	HoursPerWeek time.Duration `json:"hoursPerWeek"`
+	Entries      []Entry       `json:"entries"`
 }

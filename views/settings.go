@@ -39,6 +39,7 @@ func (s *Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return s, changeTargetDurationIfValid(s.hoursPerWeek.Value())
 
 	case types.ViewChangedMsg:
+		s.hoursPerWeek.SetValue(util.Store.HoursPerWeek.String())
 		s.hoursPerWeek.CursorEnd()
 	}
 
@@ -64,8 +65,5 @@ func changeTargetDurationIfValid(d string) tea.Cmd {
 
 	util.Store.HoursPerWeek = duration
 
-	return func() tea.Msg {
-		return util.SendStoreChangedMsg()
-	}
-
+	return util.SendStoreChangedMsg
 }
