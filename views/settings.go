@@ -2,6 +2,7 @@ package views
 
 import (
 	"gowt/i18n"
+	"gowt/types"
 	"gowt/util"
 	"time"
 
@@ -37,6 +38,8 @@ func (s *Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		return s, changeTargetDurationIfValid(s.hoursPerWeek.Value())
 
+	case types.ViewChangedMsg:
+		s.hoursPerWeek.CursorEnd()
 	}
 
 	return s, cmd
