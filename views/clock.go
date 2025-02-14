@@ -17,12 +17,11 @@ import (
 )
 
 type Clock struct {
-	now            string
-	progress       progress.Model
-	table          table.Model
-	lastClockIn    last_clock_in.Model
-	help           help.Model
-	targetDuration time.Duration
+	now         string
+	progress    progress.Model
+	table       table.Model
+	lastClockIn last_clock_in.Model
+	help        help.Model
 }
 
 func NewClock() Clock {
@@ -32,10 +31,9 @@ func NewClock() Clock {
 			progress.WithWidth(50),
 			progress.WithoutPercentage(),
 		),
-		table:          table.NewTable(),
-		lastClockIn:    last_clock_in.NewLastClockIn(),
-		help:           help.NewHelp(),
-		targetDuration: time.Duration((time.Hour * 7) + (time.Minute * 42)),
+		table:       table.NewTable(),
+		lastClockIn: last_clock_in.NewLastClockIn(),
+		help:        help.NewHelp(),
 	}
 }
 
@@ -76,7 +74,6 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		c.now = string(msg)
 
 	case types.StoreChangedMsg:
-		c.targetDuration = msg.Store.HoursPerDay
 		c.table.SetEntries(&msg.Store.Entries)
 
 	// FrameMsg is sent when the progress bar wants to animate itself
@@ -120,7 +117,7 @@ func (c *Clock) View() string {
 		row(strings.Replace(i18n.Strings().CURRENT_TIME, "$time", c.now, 1)),
 		row(c.lastClockIn.View()),
 		row(c.progress.ViewAs(percent/100)),
-		row(elapsed+" / "+c.targetDuration.String()+" ("+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
+		row(elapsed+" / "+util.Store.HoursPerDay.String()+" ("+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
 	)
 
 	if len(util.Store.Entries) > 0 {
@@ -140,7 +137,7 @@ func (c Clock) getElapsedTime() (string, float64) {
 		elapsed += entry.Duration()
 	}
 
-	percent := elapsed.Seconds() / (c.targetDuration.Seconds() / 100)
+	percent := elapsed.Seconds() / (util.Store.HoursPerDay.Seconds() / 100)
 
 	return elapsed.String(), percent
 }
