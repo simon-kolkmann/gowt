@@ -33,6 +33,17 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case types.ClockOutMsg:
 		m.lastClockIn = time.Time{}
 
+	case types.StoreChangedMsg:
+		lastEntry := msg.Entries[len(msg.Entries)-1]
+
+		if lastEntry.End.IsZero() {
+			// currently clocked in
+			m.lastClockIn = lastEntry.Start
+		} else {
+			// currently clocked out
+			m.lastClockIn = time.Time{}
+		}
+
 	}
 
 	return m, nil
