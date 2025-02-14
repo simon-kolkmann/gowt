@@ -151,7 +151,7 @@ func (a app) View() string {
 
 	content := lipgloss.NewStyle().
 		Width(a.width - 6).
-		Height(a.height - lipgloss.Height(footer) - 4).
+		Height(a.height - lipgloss.Height(footer) - 3).
 		Align(lipgloss.Center).
 		Render(activeView)
 
