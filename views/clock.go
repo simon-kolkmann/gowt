@@ -18,7 +18,6 @@ import (
 
 type Clock struct {
 	now            string
-	entries        []types.Entry
 	progress       progress.Model
 	table          table.Model
 	lastClockIn    last_clock_in.Model
@@ -28,7 +27,6 @@ type Clock struct {
 
 func NewClock() Clock {
 	return Clock{
-		entries: []types.Entry{},
 		progress: progress.New(
 			progress.WithSolidFill(types.Theme.Success),
 			progress.WithWidth(50),
@@ -66,16 +64,10 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "enter":
-			if len(c.entries) == 0 {
+			if util.Store.LastClockIn().IsZero() {
 				cmds = append(cmds, clockIn(types.Entry{Start: time.Now()}))
 			} else {
-				current := c.entries[len(c.entries)-1]
-
-				if current.End.IsZero() {
-					cmds = append(cmds, clockOut)
-				} else {
-					cmds = append(cmds, clockIn(types.Entry{Start: time.Now()}))
-				}
+				cmds = append(cmds, clockOut)
 			}
 
 		}
@@ -85,8 +77,7 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case types.StoreChangedMsg:
 		c.targetDuration = msg.Store.HoursPerDay
-		c.entries = util.Store.Entries
-		c.table.SetEntries(&c.entries)
+		c.table.SetEntries(&msg.Store.Entries)
 
 	// FrameMsg is sent when the progress bar wants to animate itself
 	case progress.FrameMsg:
@@ -96,14 +87,12 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case types.ClockInMsg:
 		c.progress.FullColor = types.Theme.Success
-		c.entries = append(c.entries, msg.Entry)
-		util.Store.Entries = c.entries
+		util.Store.Entries = append(util.Store.Entries, msg.Entry)
 		cmds = append(cmds, util.SendStoreChangedMsg)
 
 	case types.ClockOutMsg:
 		c.progress.FullColor = types.Theme.Error
-		c.entries[len(c.entries)-1].End = time.Now()
-		util.Store.Entries = c.entries
+		util.Store.Entries[len(util.Store.Entries)-1].End = time.Now()
 		cmds = append(cmds, util.SendStoreChangedMsg)
 
 	}
@@ -134,7 +123,7 @@ func (c *Clock) View() string {
 		row(elapsed+" / "+c.targetDuration.String()+" ("+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
 	)
 
-	if len(c.entries) > 0 {
+	if len(util.Store.Entries) > 0 {
 		components = append(components, row(c.table.View()))
 	}
 
@@ -147,7 +136,7 @@ func (c *Clock) View() string {
 func (c Clock) getElapsedTime() (string, float64) {
 	var elapsed time.Duration
 
-	for _, entry := range c.entries {
+	for _, entry := range util.Store.Entries {
 		elapsed += entry.Duration()
 	}
 

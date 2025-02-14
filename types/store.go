@@ -15,11 +15,17 @@ type Store struct {
 // If the user is currently clocked out, a zeroed
 // time will be returned.
 func (s *Store) LastClockIn() time.Time {
-	lastEntry := s.Entries[len(s.Entries)-1]
+	hasNoEntries := len(s.Entries) == 0
 
-	if lastEntry.End.IsZero() {
+	if hasNoEntries {
+		return time.Time{}
+	}
+
+	mostRecentEntry := s.Entries[len(s.Entries)-1]
+
+	if mostRecentEntry.End.IsZero() {
 		// currently clocked in
-		return lastEntry.Start
+		return mostRecentEntry.Start
 	} else {
 		// currently clocked out
 		return time.Time{}
