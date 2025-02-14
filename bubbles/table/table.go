@@ -79,7 +79,7 @@ func (c *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					entries = append(entries, entry)
 				}
 			}
-
+			c.table.SetCursor(cursor - 1)
 			util.Store.Entries = entries
 			cmds = append(cmds, util.SendStoreChangedMsg)
 
