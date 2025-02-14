@@ -4,10 +4,12 @@ import (
 	"gowt/bubbles/help"
 	"gowt/i18n"
 	"gowt/types"
+	"gowt/util"
 	"gowt/views"
 	"io"
 	"os"
 
+	"github.com/charmbracelet/bubbles/cursor"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/davecgh/go-spew/spew"
@@ -46,7 +48,12 @@ func (a app) Init() tea.Cmd {
 
 func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if a.dump != nil {
-		spew.Fdump(a.dump, msg)
+		_, isTimeTickMsg := msg.(util.TimeTickMsg)
+		_, isBlinkMsg := msg.(cursor.BlinkMsg)
+
+		if !isTimeTickMsg && !isBlinkMsg {
+			spew.Fdump(a.dump, msg)
+		}
 	}
 
 	var cmd tea.Cmd
