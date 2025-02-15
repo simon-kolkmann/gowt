@@ -23,7 +23,7 @@ func main() {
 		return
 	}
 
-	p := tea.NewProgram(NewApp())
+	p := tea.NewProgram(NewApp(), tea.WithAltScreen())
 
 	go util.StartTimeTickLoop(p)
 
