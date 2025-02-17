@@ -2,8 +2,8 @@ package views
 
 import (
 	"gowt/i18n"
-	"gowt/types"
-	"gowt/util"
+	"gowt/messages"
+	"gowt/store"
 	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -38,8 +38,8 @@ func (s *Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		return s, changeTargetDurationIfValid(s.hoursPerDay.Value())
 
-	case types.ViewChangedMsg:
-		s.hoursPerDay.SetValue(util.Store.HoursPerDay.String())
+	case messages.ViewChangedMsg:
+		s.hoursPerDay.SetValue(store.GetHoursPerDay().String())
 		s.hoursPerDay.CursorEnd()
 	}
 
@@ -63,7 +63,5 @@ func changeTargetDurationIfValid(d string) tea.Cmd {
 		return nil
 	}
 
-	util.Store.HoursPerDay = duration
-
-	return util.SendStoreChangedMsg
+	return store.SetHoursPerDay(duration)
 }

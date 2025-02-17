@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gowt/store"
 	"gowt/util"
 	"os"
 
@@ -24,6 +25,7 @@ func main() {
 	}
 
 	p := tea.NewProgram(NewApp(), tea.WithAltScreen())
+	store.Init()
 
 	go util.StartTimeTickLoop(p)
 

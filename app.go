@@ -3,6 +3,8 @@ package main
 import (
 	"gowt/bubbles/help"
 	"gowt/i18n"
+	"gowt/messages"
+	"gowt/store"
 	"gowt/types"
 	"gowt/util"
 	"gowt/views"
@@ -45,13 +47,10 @@ func NewApp() app {
 }
 
 func (a app) Init() tea.Cmd {
-	util.InitStore()
-
 	return tea.Batch(
-		util.SendStoreChangedMsg,
+		store.Init(),
 		setLanguage(i18n.LANG_GERMAN),
 	)
-
 }
 
 func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -105,7 +104,7 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		}
 
-	case types.StoreChangedMsg:
+	case store.StoreChangedMsg:
 		_, cmd = a.clock.Update(msg)
 		cmds = append(cmds, cmd)
 
@@ -173,12 +172,12 @@ func (a app) View() string {
 func setLanguage(l types.Language) tea.Cmd {
 	return func() tea.Msg {
 		i18n.Selected = l
-		return types.LanguageChangedMsg(l)
+		return messages.LanguageChangedMsg(l)
 	}
 }
 
 func sendViewChangedMsg(v types.View) tea.Cmd {
 	return func() tea.Msg {
-		return types.ViewChangedMsg(v)
+		return messages.ViewChangedMsg(v)
 	}
 }

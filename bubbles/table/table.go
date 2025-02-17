@@ -2,6 +2,8 @@ package table
 
 import (
 	"gowt/i18n"
+	"gowt/messages"
+	"gowt/store"
 	"gowt/types"
 	"gowt/util"
 	"time"
@@ -72,31 +74,29 @@ func (c *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "delete":
 			entries := make([]types.Entry, 0)
 			cursor := c.table.Cursor()
-			entryIndex := len(util.Store.Entries) - 1 - cursor
+			entryIndex := len(store.GetEntries()) - 1 - cursor
 
-			for i, entry := range util.Store.Entries {
+			for i, entry := range store.GetEntries() {
 				if i != entryIndex {
 					entries = append(entries, entry)
 				}
 			}
 			c.table.SetCursor(cursor - 1)
-			util.Store.Entries = entries
-			cmds = append(cmds, util.SendStoreChangedMsg)
+			cmds = append(cmds, store.SetEntries(entries))
 
 		case "alt+delete":
-			util.Store.Entries = make([]types.Entry, 0)
-			cmds = append(cmds, util.SendStoreChangedMsg)
+			cmds = append(cmds, store.SetEntries(make([]types.Entry, 0)))
 		}
 
-	case util.TimeTickMsg, types.ClockInMsg, types.ClockOutMsg:
+	case util.TimeTickMsg, messages.ClockInMsg, messages.ClockOutMsg:
 		c.calculateTableRows()
 
-	case types.LanguageChangedMsg:
+	case messages.LanguageChangedMsg:
 		c.table = createTable()
 		c.calculateTableRows()
 
-	case types.StoreChangedMsg:
-		c.entries = msg.Store.Entries
+	case store.StoreChangedMsg:
+		c.entries = store.GetEntries()
 		c.calculateTableRows()
 	}
 

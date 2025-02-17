@@ -2,6 +2,8 @@ package last_clock_in
 
 import (
 	"gowt/i18n"
+	"gowt/messages"
+	"gowt/store"
 	"gowt/types"
 	"strings"
 	"time"
@@ -27,14 +29,14 @@ func (m *Model) Init() tea.Cmd {
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
-	case types.ClockInMsg:
+	case messages.ClockInMsg:
 		m.lastClockIn = msg.Entry.Start
 
-	case types.ClockOutMsg:
+	case messages.ClockOutMsg:
 		m.lastClockIn = time.Time{}
 
-	case types.StoreChangedMsg:
-		m.lastClockIn = msg.Store.LastClockIn()
+	case store.StoreChangedMsg:
+		m.lastClockIn = store.LastClockIn()
 
 	}
 
