@@ -4,7 +4,6 @@ import (
 	"gowt/bubbles/help"
 	last_clock_in "gowt/bubbles/last-clock-in"
 	"gowt/bubbles/table"
-	"gowt/i18n"
 	"gowt/messages"
 	"gowt/store"
 	"gowt/types"
@@ -118,7 +117,7 @@ func (c *Clock) View() string {
 
 	components := []string{}
 	components = append(components,
-		row(strings.Replace(i18n.Strings().CURRENT_TIME, "$time", c.now, 1)),
+		row(strings.Replace(store.Strings().CURRENT_TIME, "$time", c.now, 1)),
 		row(c.lastClockIn.View()),
 		row(c.progress.ViewAs(percent/100)),
 		row(elapsed+" / "+store.GetHoursPerDay().String()+" ("+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),

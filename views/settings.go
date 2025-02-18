@@ -1,7 +1,6 @@
 package views
 
 import (
-	"gowt/i18n"
 	"gowt/messages"
 	"gowt/store"
 	"time"
@@ -47,11 +46,11 @@ func (s *Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (s *Settings) View() string {
-	s.hoursPerDay.Prompt = i18n.Strings().HOURS_PER_DAY_LABEL + ":\n"
+	s.hoursPerDay.Prompt = store.Strings().HOURS_PER_DAY_LABEL + ":\n"
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		i18n.Strings().VIEW_CAPTION_SETTINGS+"\n",
+		store.Strings().VIEW_CAPTION_SETTINGS+"\n",
 		s.hoursPerDay.View()+"\n",
 	)
 }

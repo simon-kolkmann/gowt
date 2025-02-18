@@ -1,11 +1,17 @@
 package i18n
 
 import (
-	"gowt/store"
 	"gowt/types"
 )
 
-type strings struct {
+type Language string
+
+const (
+	LANG_GERMAN  Language = "ger"
+	LANG_ENGLISH Language = "eng"
+)
+
+type Strings struct {
 	START        string
 	END          string
 	DURATION     string
@@ -33,7 +39,7 @@ type strings struct {
 	HELP_DELETE_ALL_ENTRIES_KEY string
 }
 
-var german strings = strings{
+var German Strings = Strings{
 	START:        "Beginn",
 	END:          "Ende",
 	DURATION:     "Dauer",
@@ -73,7 +79,7 @@ var german strings = strings{
 	HELP_DELETE_ALL_ENTRIES_KEY: "alt+entf",
 }
 
-var english strings = strings{
+var English Strings = Strings{
 	START:        "Start",
 	END:          "End",
 	DURATION:     "Duration",
@@ -111,12 +117,4 @@ var english strings = strings{
 	HELP_DELETE_ENTRY_KEY:       "del",
 	HELP_DELETE_ALL_ENTRIES:     "delete all entries",
 	HELP_DELETE_ALL_ENTRIES_KEY: "alt+del",
-}
-
-func Strings() strings {
-	if store.GetLanguage() == types.LANG_GERMAN {
-		return german
-	}
-
-	return english
 }

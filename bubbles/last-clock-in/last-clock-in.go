@@ -1,7 +1,6 @@
 package last_clock_in
 
 import (
-	"gowt/i18n"
 	"gowt/messages"
 	"gowt/store"
 	"gowt/types"
@@ -47,11 +46,11 @@ func (m *Model) View() string {
 	style := lipgloss.NewStyle().Bold(true)
 
 	if m.lastClockIn.IsZero() {
-		s := i18n.Strings().CLOCKED_OUT
+		s := store.Strings().CLOCKED_OUT
 		return style.Foreground(lipgloss.Color(types.Theme.Error)).Render(s)
 	}
 
-	template := i18n.Strings().CLOCKED_IN
+	template := store.Strings().CLOCKED_IN
 	lastClockIn := m.lastClockIn.Format(time.TimeOnly)
 	s := strings.Replace(template, "$time", lastClockIn, 1)
 

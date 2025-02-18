@@ -2,6 +2,7 @@ package store
 
 import (
 	"encoding/json"
+	"gowt/i18n"
 	"gowt/types"
 	"os"
 	"path/filepath"
@@ -16,14 +17,14 @@ type store struct {
 	date        time.Time
 	hoursPerDay time.Duration
 	entries     []types.Entry
-	language    types.Language
+	language    i18n.Language
 }
 
 type storeJsonFile struct {
-	Date        time.Time      `json:"date"`
-	HoursPerDay time.Duration  `json:"hoursPerDay"`
-	Entries     []types.Entry  `json:"entries"`
-	Language    types.Language `json:"language"`
+	Date        time.Time     `json:"date"`
+	HoursPerDay time.Duration `json:"hoursPerDay"`
+	Entries     []types.Entry `json:"entries"`
+	Language    i18n.Language `json:"language"`
 }
 
 type StoreChangedMsg struct{}
@@ -86,13 +87,28 @@ func GetHoursPerDay() time.Duration {
 	return s.hoursPerDay
 }
 
-func SetLanguage(l types.Language) tea.Cmd {
+func SetLanguage(l i18n.Language) tea.Cmd {
 	s.language = l
 	return saveAndSendStoreChangedMsg
 }
 
-func GetLanguage() types.Language {
+func GetLanguage() i18n.Language {
 	return s.language
+}
+
+func Strings() i18n.Strings {
+	switch s.language {
+
+	case i18n.LANG_GERMAN:
+		return i18n.German
+
+	case i18n.LANG_ENGLISH:
+		return i18n.English
+
+	default:
+		return i18n.English
+
+	}
 }
 
 func saveAndSendStoreChangedMsg() tea.Msg {
@@ -116,7 +132,7 @@ func loadFromFileOrUseDefaults() {
 		s.date = time.Now()
 		s.hoursPerDay = time.Duration(time.Hour * 8)
 		s.entries = make([]types.Entry, 0)
-		s.language = types.LANG_ENGLISH
+		s.language = i18n.LANG_ENGLISH
 	} else {
 		s = jsonToStore(file)
 	}

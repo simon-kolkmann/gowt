@@ -2,6 +2,7 @@ package main
 
 import (
 	"gowt/bubbles/help"
+	"gowt/i18n"
 	"gowt/messages"
 	"gowt/store"
 	"gowt/types"
@@ -78,10 +79,10 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return a, tea.Quit
 
 		case "ctrl+l":
-			if store.GetLanguage() == types.LANG_ENGLISH {
-				cmds = append(cmds, store.SetLanguage(types.LANG_GERMAN))
+			if store.GetLanguage() == i18n.LANG_ENGLISH {
+				cmds = append(cmds, store.SetLanguage(i18n.LANG_GERMAN))
 			} else {
-				cmds = append(cmds, store.SetLanguage(types.LANG_ENGLISH))
+				cmds = append(cmds, store.SetLanguage(i18n.LANG_ENGLISH))
 			}
 
 		case "ctrl+left":

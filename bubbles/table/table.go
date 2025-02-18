@@ -1,7 +1,6 @@
 package table
 
 import (
-	"gowt/i18n"
 	"gowt/messages"
 	"gowt/store"
 	"gowt/types"
@@ -32,10 +31,10 @@ func NewTable() Model {
 
 func createTable() table.Model {
 	columns := []table.Column{
-		{Title: i18n.Strings().START, Width: 10},
-		{Title: i18n.Strings().END, Width: 10},
-		{Title: i18n.Strings().DURATION, Width: 10},
-		{Title: i18n.Strings().SUM, Width: 10},
+		{Title: store.Strings().START, Width: 10},
+		{Title: store.Strings().END, Width: 10},
+		{Title: store.Strings().DURATION, Width: 10},
+		{Title: store.Strings().SUM, Width: 10},
 	}
 
 	t := table.New(

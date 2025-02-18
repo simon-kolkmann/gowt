@@ -1,7 +1,6 @@
 package help
 
 import (
-	"gowt/i18n"
 	"gowt/messages"
 	"gowt/store"
 	"gowt/types"
@@ -38,50 +37,50 @@ func createKeyMap(view types.View) keyMap {
 	m := keyMap{
 		Quit: key.NewBinding(
 			key.WithKeys("q"),
-			key.WithHelp(i18n.Strings().HELP_QUIT_KEY, i18n.Strings().HELP_QUIT),
+			key.WithHelp(store.Strings().HELP_QUIT_KEY, store.Strings().HELP_QUIT),
 		),
 		ChangeLanguage: key.NewBinding(
 			key.WithKeys("ctrl+l"),
-			key.WithHelp(i18n.Strings().HELP_CHANGE_LANG_KEY, i18n.Strings().HELP_CHANGE_LANG),
+			key.WithHelp(store.Strings().HELP_CHANGE_LANG_KEY, store.Strings().HELP_CHANGE_LANG),
 		),
 	}
 
 	if view == types.ViewSettings {
 		m.CtrlRight = key.NewBinding(
 			key.WithKeys("ctrl+right"),
-			key.WithHelp(i18n.Strings().HELP_NEXT_VIEW_KEY, i18n.Strings().HELP_VIEW_NAME(types.ViewClock)),
+			key.WithHelp(store.Strings().HELP_NEXT_VIEW_KEY, store.Strings().HELP_VIEW_NAME(types.ViewClock)),
 		)
 	}
 
 	if view == types.ViewClock {
 		m.Up = key.NewBinding(
 			key.WithKeys("up"),
-			key.WithHelp("↑", i18n.Strings().HELP_MOVE_UP),
+			key.WithHelp("↑", store.Strings().HELP_MOVE_UP),
 		)
 
 		m.Down = key.NewBinding(
 			key.WithKeys("down"),
-			key.WithHelp("↓", i18n.Strings().HELP_MOVE_DOWN),
+			key.WithHelp("↓", store.Strings().HELP_MOVE_DOWN),
 		)
 
 		m.Enter = key.NewBinding(
 			key.WithKeys("enter"),
-			key.WithHelp("enter", i18n.Strings().HELP_CLOCK_IN_OUT),
+			key.WithHelp("enter", store.Strings().HELP_CLOCK_IN_OUT),
 		)
 
 		m.Delete = key.NewBinding(
 			key.WithKeys("delete"),
-			key.WithHelp(i18n.Strings().HELP_DELETE_ENTRY_KEY, i18n.Strings().HELP_DELETE_ENTRY),
+			key.WithHelp(store.Strings().HELP_DELETE_ENTRY_KEY, store.Strings().HELP_DELETE_ENTRY),
 		)
 
 		m.AltDelete = key.NewBinding(
 			key.WithKeys("alt+delete"),
-			key.WithHelp(i18n.Strings().HELP_DELETE_ALL_ENTRIES_KEY, i18n.Strings().HELP_DELETE_ALL_ENTRIES),
+			key.WithHelp(store.Strings().HELP_DELETE_ALL_ENTRIES_KEY, store.Strings().HELP_DELETE_ALL_ENTRIES),
 		)
 
 		m.CtrlLeft = key.NewBinding(
 			key.WithKeys("ctrl+left"),
-			key.WithHelp(i18n.Strings().HELP_PREV_VIEW_KEY, i18n.Strings().HELP_VIEW_NAME(types.ViewSettings)),
+			key.WithHelp(store.Strings().HELP_PREV_VIEW_KEY, store.Strings().HELP_VIEW_NAME(types.ViewSettings)),
 		)
 	}
 
