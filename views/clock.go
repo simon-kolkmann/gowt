@@ -76,10 +76,6 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case util.TimeTickMsg:
 		c.now = string(msg)
 
-	case store.StoreChangedMsg:
-		entries := store.GetEntries()
-		c.table.SetEntries(&entries)
-
 	// FrameMsg is sent when the progress bar wants to animate itself
 	case progress.FrameMsg:
 		progressModel, cmd := c.progress.Update(msg)

@@ -18,10 +18,6 @@ type Model struct {
 	entries []types.Entry
 }
 
-func (m *Model) SetEntries(entries *[]types.Entry) {
-	m.entries = *entries
-}
-
 func NewTable() Model {
 	model := Model{
 		table: createTable(),
