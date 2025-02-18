@@ -91,11 +91,10 @@ func (c *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case util.TimeTickMsg, messages.ClockInMsg, messages.ClockOutMsg:
 		c.calculateTableRows()
 
-	case messages.LanguageChangedMsg:
-		c.table = createTable()
-		c.calculateTableRows()
-
 	case store.StoreChangedMsg:
+		// TODO: more specific messages
+		// language change
+		c.table = createTable()
 		c.entries = store.GetEntries()
 		c.calculateTableRows()
 	}

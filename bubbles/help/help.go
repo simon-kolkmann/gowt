@@ -3,6 +3,7 @@ package help
 import (
 	"gowt/i18n"
 	"gowt/messages"
+	"gowt/store"
 	"gowt/types"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -114,7 +115,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// its view as needed.
 		m.help.Width = msg.Width
 
-	case messages.LanguageChangedMsg:
+	case store.StoreChangedMsg:
+		// language change
+		// TODO: more specific messages
 		m.keys = createKeyMap(m.activeView)
 
 	case messages.ViewChangedMsg:

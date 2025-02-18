@@ -1,10 +1,8 @@
 package i18n
 
-import "gowt/types"
-
-const (
-	LANG_GERMAN  types.Language = "LANG_GERMAN"
-	LANG_ENGLISH types.Language = "LANG_ENGLISH"
+import (
+	"gowt/store"
+	"gowt/types"
 )
 
 type strings struct {
@@ -115,10 +113,8 @@ var english strings = strings{
 	HELP_DELETE_ALL_ENTRIES_KEY: "alt+del",
 }
 
-var Selected types.Language
-
 func Strings() strings {
-	if Selected == LANG_GERMAN {
+	if store.GetLanguage() == types.LANG_GERMAN {
 		return german
 	}
 

@@ -1,6 +1,8 @@
 package messages
 
-import "gowt/types"
+import (
+	"gowt/types"
+)
 
 type ClockInMsg struct {
 	Entry types.Entry
@@ -9,7 +11,5 @@ type ClockInMsg struct {
 type ClockOutMsg struct {
 	Entry types.Entry
 }
-
-type LanguageChangedMsg types.Language
 
 type ViewChangedMsg types.View

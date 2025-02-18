@@ -2,7 +2,6 @@ package main
 
 import (
 	"gowt/bubbles/help"
-	"gowt/i18n"
 	"gowt/messages"
 	"gowt/store"
 	"gowt/types"
@@ -49,7 +48,6 @@ func NewApp() app {
 func (a app) Init() tea.Cmd {
 	return tea.Batch(
 		store.Init(),
-		setLanguage(i18n.LANG_GERMAN),
 	)
 }
 
@@ -80,12 +78,10 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return a, tea.Quit
 
 		case "ctrl+l":
-			if i18n.Selected == i18n.LANG_GERMAN {
-				cmds = append(cmds, setLanguage(i18n.LANG_ENGLISH))
-			}
-
-			if i18n.Selected == i18n.LANG_ENGLISH {
-				cmds = append(cmds, setLanguage(i18n.LANG_GERMAN))
+			if store.GetLanguage() == types.LANG_ENGLISH {
+				cmds = append(cmds, store.SetLanguage(types.LANG_GERMAN))
+			} else {
+				cmds = append(cmds, store.SetLanguage(types.LANG_ENGLISH))
 			}
 
 		case "ctrl+left":
@@ -167,13 +163,6 @@ func (a app) View() string {
 			footer,
 		),
 	)
-}
-
-func setLanguage(l types.Language) tea.Cmd {
-	return func() tea.Msg {
-		i18n.Selected = l
-		return messages.LanguageChangedMsg(l)
-	}
 }
 
 func sendViewChangedMsg(v types.View) tea.Cmd {

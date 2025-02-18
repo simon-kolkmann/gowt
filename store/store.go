@@ -16,12 +16,14 @@ type store struct {
 	date        time.Time
 	hoursPerDay time.Duration
 	entries     []types.Entry
+	language    types.Language
 }
 
 type storeJsonFile struct {
-	Date        time.Time     `json:"date"`
-	HoursPerDay time.Duration `json:"hoursPerDay"`
-	Entries     []types.Entry `json:"entries"`
+	Date        time.Time      `json:"date"`
+	HoursPerDay time.Duration  `json:"hoursPerDay"`
+	Entries     []types.Entry  `json:"entries"`
+	Language    types.Language `json:"language"`
 }
 
 type StoreChangedMsg struct{}
@@ -84,6 +86,15 @@ func GetHoursPerDay() time.Duration {
 	return s.hoursPerDay
 }
 
+func SetLanguage(l types.Language) tea.Cmd {
+	s.language = l
+	return saveAndSendStoreChangedMsg
+}
+
+func GetLanguage() types.Language {
+	return s.language
+}
+
 func saveAndSendStoreChangedMsg() tea.Msg {
 	saveToFile(s)
 
@@ -105,9 +116,10 @@ func loadFromFileOrUseDefaults() {
 		s.date = time.Now()
 		s.hoursPerDay = time.Duration(time.Hour * 8)
 		s.entries = make([]types.Entry, 0)
+		s.language = types.LANG_ENGLISH
+	} else {
+		s = jsonToStore(file)
 	}
-
-	s = jsonToStore(file)
 }
 
 func saveToFile(s store) {
@@ -120,6 +132,7 @@ func storeToJson(s store) storeJsonFile {
 		Date:        s.date,
 		HoursPerDay: s.hoursPerDay,
 		Entries:     s.entries,
+		Language:    s.language,
 	}
 }
 
@@ -131,6 +144,7 @@ func jsonToStore(f []byte) store {
 	store.date = sj.Date
 	store.hoursPerDay = sj.HoursPerDay
 	store.entries = sj.Entries
+	store.language = sj.Language
 
 	return store
 }
