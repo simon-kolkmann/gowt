@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/bubbles/cursor"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/davecgh/go-spew/spew"
@@ -72,27 +73,27 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.width = msg.Width
 
 	case tea.KeyMsg:
-		switch msg.String() {
+		switch {
 
 		// These keys should exit the program.
-		case "ctrl+c", "q":
+		case key.Matches(msg, util.Keys.Quit):
 			return a, tea.Quit
 
-		case "ctrl+l":
+		case key.Matches(msg, util.Keys.CtrlL):
 			if store.GetLanguage() == i18n.LANG_ENGLISH {
 				cmds = append(cmds, store.SetLanguage(i18n.LANG_GERMAN))
 			} else {
 				cmds = append(cmds, store.SetLanguage(i18n.LANG_ENGLISH))
 			}
 
-		case "ctrl+left":
+		case key.Matches(msg, util.Keys.CtrlLeft):
 			if a.activeView > types.ViewSettings {
 				a.activeView--
 			}
 
 			cmds = append(cmds, sendViewChangedMsg(a.activeView))
 
-		case "ctrl+right":
+		case key.Matches(msg, util.Keys.CtrlRight):
 			if a.activeView < types.ViewClock {
 				a.activeView++
 			}

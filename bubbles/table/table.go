@@ -7,6 +7,7 @@ import (
 	"gowt/util"
 	"time"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -68,9 +69,9 @@ func (c *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:
-		switch msg.String() {
+		switch {
 
-		case "delete":
+		case key.Matches(msg, util.Keys.Delete):
 			entries := make([]types.Entry, 0)
 			cursor := c.table.Cursor()
 			entryIndex := len(store.GetEntries()) - 1 - cursor
@@ -83,7 +84,7 @@ func (c *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			c.table.SetCursor(cursor - 1)
 			cmds = append(cmds, store.SetEntries(entries))
 
-		case "alt+delete":
+		case key.Matches(msg, util.Keys.AltDelete):
 			cmds = append(cmds, store.SetEntries(make([]types.Entry, 0)))
 		}
 
