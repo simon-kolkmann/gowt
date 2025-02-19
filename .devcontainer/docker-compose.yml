@@ -1,0 +1,10 @@
+services:
+  gowt:
+    image: golang:1.23.3
+    container_name: gowt
+    working_dir: /app/gowt
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    environment:
+      TERM: xterm-256color
+    volumes:
+      - $PWD:/app/gowt

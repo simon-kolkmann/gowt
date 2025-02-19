@@ -1,0 +1,14 @@
+
+{
+  "service": "gowt",
+  "dockerComposeFile": ["docker-compose.yml"],
+  "workspaceFolder": "/app/gowt",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "pomdtr.excalidraw-editor"
+      ]
+    }
+  }
+}
