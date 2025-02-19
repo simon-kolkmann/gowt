@@ -10,5 +10,6 @@
         "pomdtr.excalidraw-editor"
       ]
     }
-  }
+  },
+  "postCreateCommand": ".devcontainer/postCreate.sh"
 }
