@@ -66,6 +66,9 @@ var German Strings = Strings{
 		case types.ViewSettings:
 			return "ansicht: einstellungen"
 
+		case types.ViewEdit:
+			return "ansicht: bearbeiten"
+
 		default:
 			return "ansicht: n/a"
 
@@ -105,6 +108,9 @@ var English Strings = Strings{
 
 		case types.ViewSettings:
 			return "view: settings"
+
+		case types.ViewEdit:
+			return "view: edit"
 
 		default:
 			return "view: n/a"

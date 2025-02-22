@@ -14,6 +14,7 @@ import (
 var s store = store{}
 
 type store struct {
+	activeView  types.View
 	date        time.Time
 	hoursPerDay time.Duration
 	entries     []types.Entry
@@ -30,6 +31,8 @@ type storeJsonFile struct {
 type StoreChangedMsg struct{}
 
 func Init() tea.Cmd {
+	s.activeView = types.ViewClock
+
 	loadFromFileOrUseDefaults()
 
 	stateIsFromToday := s.date.Format(time.DateOnly) == time.Now().Format(time.DateOnly)
@@ -96,6 +99,15 @@ func GetLanguage() i18n.Language {
 	return s.language
 }
 
+func SetActiveView(v types.View) tea.Cmd {
+	s.activeView = v
+	return saveAndSendStoreChangedMsg
+}
+
+func GetActiveView() types.View {
+	return s.activeView
+}
+
 func Strings() i18n.Strings {
 	switch s.language {
 
@@ -134,7 +146,7 @@ func loadFromFileOrUseDefaults() {
 		s.entries = make([]types.Entry, 0)
 		s.language = i18n.LANG_ENGLISH
 	} else {
-		s = jsonToStore(file)
+		loadFromJson(file, &s)
 	}
 }
 
@@ -152,15 +164,12 @@ func storeToJson(s store) storeJsonFile {
 	}
 }
 
-func jsonToStore(f []byte) store {
+func loadFromJson(f []byte, s *store) {
 	sj := storeJsonFile{}
 	json.Unmarshal(f, &sj)
 
-	store := store{}
-	store.date = sj.Date
-	store.hoursPerDay = sj.HoursPerDay
-	store.entries = sj.Entries
-	store.language = sj.Language
-
-	return store
+	s.date = sj.Date
+	s.hoursPerDay = sj.HoursPerDay
+	s.entries = sj.Entries
+	s.language = sj.Language
 }
