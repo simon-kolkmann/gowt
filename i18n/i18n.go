@@ -23,6 +23,11 @@ type Strings struct {
 	VIEW_CAPTION_SETTINGS string
 	HOURS_PER_DAY_LABEL   string
 
+	EDIT_ENTRY         string
+	ENTRY_SAVE_SUCCESS string
+	ENTRY_SAVE_FAILED  string
+	NO_ENTRY_SELECTED  string
+
 	HELP_CLOCK_IN_OUT           string
 	HELP_QUIT                   string
 	HELP_QUIT_KEY               string
@@ -37,6 +42,8 @@ type Strings struct {
 	HELP_DELETE_ENTRY_KEY       string
 	HELP_DELETE_ALL_ENTRIES     string
 	HELP_DELETE_ALL_ENTRIES_KEY string
+	HELP_SUBMIT                 string
+	HELP_SUBMIT_KEY             string
 }
 
 var German Strings = Strings{
@@ -50,6 +57,11 @@ var German Strings = Strings{
 
 	VIEW_CAPTION_SETTINGS: "Einstellungen",
 	HOURS_PER_DAY_LABEL:   "tägliche Arbeitszeit",
+
+	EDIT_ENTRY:         "Eintrag bearbeiten",
+	ENTRY_SAVE_SUCCESS: "Die Eingaben wurden gespeichert.",
+	ENTRY_SAVE_FAILED:  "Mindestens eine Eingabe ist fehlerhaft und kann nicht gespeichert werden.",
+	NO_ENTRY_SELECTED:  "Kein Eintrag ausgewählt.",
 
 	HELP_CLOCK_IN_OUT:  "ein- und ausstempeln",
 	HELP_QUIT:          "beenden",
@@ -66,6 +78,9 @@ var German Strings = Strings{
 		case types.ViewSettings:
 			return "ansicht: einstellungen"
 
+		case types.ViewEdit:
+			return "ansicht: bearbeiten"
+
 		default:
 			return "ansicht: n/a"
 
@@ -77,6 +92,8 @@ var German Strings = Strings{
 	HELP_DELETE_ENTRY_KEY:       "entf",
 	HELP_DELETE_ALL_ENTRIES:     "alle einträge löschen",
 	HELP_DELETE_ALL_ENTRIES_KEY: "alt+entf",
+	HELP_SUBMIT:                 "bestätigen",
+	HELP_SUBMIT_KEY:             "enter",
 }
 
 var English Strings = Strings{
@@ -90,6 +107,11 @@ var English Strings = Strings{
 
 	VIEW_CAPTION_SETTINGS: "Settings",
 	HOURS_PER_DAY_LABEL:   "Daily work time",
+
+	EDIT_ENTRY:         "Edit entry",
+	ENTRY_SAVE_SUCCESS: "Entry saved.",
+	ENTRY_SAVE_FAILED:  "At least one value is invalid and cannot be saved.",
+	NO_ENTRY_SELECTED:  "No entry selected.",
 
 	HELP_CLOCK_IN_OUT:  "clock in/out",
 	HELP_QUIT:          "quit",
@@ -106,6 +128,9 @@ var English Strings = Strings{
 		case types.ViewSettings:
 			return "view: settings"
 
+		case types.ViewEdit:
+			return "view: edit"
+
 		default:
 			return "view: n/a"
 
@@ -117,4 +142,6 @@ var English Strings = Strings{
 	HELP_DELETE_ENTRY_KEY:       "del",
 	HELP_DELETE_ALL_ENTRIES:     "delete all entries",
 	HELP_DELETE_ALL_ENTRIES_KEY: "alt+del",
+	HELP_SUBMIT:                 "submit",
+	HELP_SUBMIT_KEY:             "enter",
 }

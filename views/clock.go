@@ -16,6 +16,7 @@ import (
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/google/uuid"
 )
 
 type Clock struct {
@@ -66,6 +67,7 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, util.Keys.Enter):
 			if store.LastClockIn().IsZero() {
 				cmds = append(cmds, clockIn(types.Entry{
+					Id:    uuid.NewString(),
 					Start: time.Now(),
 				}))
 			} else {
@@ -91,7 +93,6 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		entries := store.GetEntries()
 		entries[len(entries)-1].End = time.Now()
 		cmds = append(cmds, store.SetEntries(entries))
-
 	}
 
 	_, cmd = c.table.Update(msg)

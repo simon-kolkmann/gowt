@@ -15,6 +15,7 @@ import (
 
 type Model struct {
 	table   table.Model
+	cursor  int
 	entries []types.Entry
 }
 
@@ -62,6 +63,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd = make([]tea.Cmd, 0)
 
+	m.table, cmd = m.table.Update(msg)
+	cmds = append(cmds, cmd)
+
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:
@@ -82,6 +86,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, util.Keys.AltDelete):
 			cmds = append(cmds, store.SetEntries(make([]types.Entry, 0)))
+
+		case key.Matches(msg, util.Keys.Up, util.Keys.Down):
+			m.cursor = m.table.Cursor()
+			cmds = append(cmds, store.SetActiveEntry(m.getSelectedEntry()))
 		}
 
 	case util.TimeTickMsg, messages.ClockInMsg, messages.ClockOutMsg:
@@ -93,10 +101,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.table = createTable()
 		m.entries = store.GetEntries()
 		m.calculateTableRows()
+		m.table.SetCursor(m.cursor)
 	}
-
-	m.table, cmd = m.table.Update(msg)
-	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
@@ -147,4 +153,9 @@ func (m *Model) calculateTableRows() {
 	} else {
 		m.table.SetHeight(len(rows) + 2)
 	}
+}
+
+func (m *Model) getSelectedEntry() *types.Entry {
+	cursor := m.table.Cursor()
+	return &m.entries[len(m.entries)-cursor-1]
 }

@@ -5,6 +5,7 @@ import (
 )
 
 type Entry struct {
+	Id    string    `json:"id"`
 	Start time.Time `json:"start"`
 	End   time.Time `json:"end"`
 }

@@ -46,12 +46,20 @@ func (s *Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (s *Settings) View() string {
+	box := lipgloss.
+		NewStyle().Align(lipgloss.Center).
+		Padding(1, 2, 2, 2).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("#ffffff"))
+
 	s.hoursPerDay.Prompt = store.Strings().HOURS_PER_DAY_LABEL + ":\n"
 
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		store.Strings().VIEW_CAPTION_SETTINGS+"\n",
-		s.hoursPerDay.View()+"\n",
+	return box.Render(
+		lipgloss.JoinVertical(
+			lipgloss.Left,
+			store.Strings().VIEW_CAPTION_SETTINGS+"\n",
+			s.hoursPerDay.View()+"\n",
+		),
 	)
 }
 

@@ -3,7 +3,6 @@ package main
 import (
 	"gowt/bubbles/help"
 	"gowt/i18n"
-	"gowt/messages"
 	"gowt/store"
 	"gowt/types"
 	"gowt/util"
@@ -19,13 +18,13 @@ import (
 )
 
 type app struct {
-	dump       io.Writer
-	clock      views.Clock
-	settings   views.Settings
-	help       help.Model
-	activeView types.View
-	width      int
-	height     int
+	dump     io.Writer
+	clock    views.Clock
+	settings views.Settings
+	edit     views.Edit
+	help     help.Model
+	width    int
+	height   int
 }
 
 func NewApp() app {
@@ -39,11 +38,11 @@ func NewApp() app {
 	}
 
 	return app{
-		clock:      views.NewClock(),
-		settings:   views.NewSettings(),
-		help:       help.NewHelp(),
-		activeView: types.ViewClock,
-		dump:       dump,
+		clock:    views.NewClock(),
+		settings: views.NewSettings(),
+		edit:     views.NewEdit(),
+		help:     help.NewHelp(),
+		dump:     dump,
 	}
 }
 
@@ -87,18 +86,14 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, util.Keys.CtrlLeft):
-			if a.activeView > types.ViewSettings {
-				a.activeView--
+			if store.GetActiveView() > types.ViewSettings {
+				cmds = append(cmds, store.SetActiveView(store.GetActiveView()-1))
 			}
-
-			cmds = append(cmds, sendViewChangedMsg(a.activeView))
 
 		case key.Matches(msg, util.Keys.CtrlRight):
-			if a.activeView < types.ViewClock {
-				a.activeView++
+			if store.GetActiveView() < types.ViewEdit {
+				cmds = append(cmds, store.SetActiveView(store.GetActiveView()+1))
 			}
-
-			cmds = append(cmds, sendViewChangedMsg(a.activeView))
 
 		}
 
@@ -110,13 +105,18 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	}
 
-	if a.activeView == types.ViewClock {
+	if store.GetActiveView() == types.ViewClock {
 		_, cmd = a.clock.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
-	if a.activeView == types.ViewSettings {
+	if store.GetActiveView() == types.ViewSettings {
 		_, cmd = a.settings.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+
+	if store.GetActiveView() == types.ViewEdit {
+		_, cmd = a.edit.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
@@ -130,12 +130,15 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (a app) View() string {
 	var activeView string
 
-	switch a.activeView {
+	switch store.GetActiveView() {
 	case types.ViewClock:
 		activeView = a.clock.View()
 
 	case types.ViewSettings:
 		activeView = a.settings.View()
+
+	case types.ViewEdit:
+		activeView = a.edit.View()
 
 	default:
 		activeView = "no active view"
@@ -165,10 +168,4 @@ func (a app) View() string {
 			footer,
 		),
 	)
-}
-
-func sendViewChangedMsg(v types.View) tea.Cmd {
-	return func() tea.Msg {
-		return messages.ViewChangedMsg(v)
-	}
 }

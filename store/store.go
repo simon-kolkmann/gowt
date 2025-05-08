@@ -14,6 +14,8 @@ import (
 var s store = store{}
 
 type store struct {
+	activeView  types.View
+	activeEntry *types.Entry
 	date        time.Time
 	hoursPerDay time.Duration
 	entries     []types.Entry
@@ -30,6 +32,8 @@ type storeJsonFile struct {
 type StoreChangedMsg struct{}
 
 func Init() tea.Cmd {
+	s.activeView = types.ViewClock
+
 	loadFromFileOrUseDefaults()
 
 	stateIsFromToday := s.date.Format(time.DateOnly) == time.Now().Format(time.DateOnly)
@@ -38,6 +42,10 @@ func Init() tea.Cmd {
 		SetEntries(make([]types.Entry, 0))
 		s.date = time.Now()
 	}
+
+	// FIXME: I use this so that the active entry is being set right after app launch,
+	// but it obviously sucks.
+	SetEntries(s.entries)
 
 	return saveAndSendStoreChangedMsg
 }
@@ -66,6 +74,13 @@ func LastClockIn() time.Time {
 
 func SetEntries(entries []types.Entry) tea.Cmd {
 	s.entries = entries
+
+	if len(entries) > 0 {
+		SetActiveEntry(&entries[len(entries)-1])
+	} else {
+		SetActiveEntry(nil)
+	}
+
 	return saveAndSendStoreChangedMsg
 }
 
@@ -75,6 +90,7 @@ func GetEntries() []types.Entry {
 
 func AddEntry(entry types.Entry) tea.Cmd {
 	s.entries = append(s.entries, entry)
+	SetActiveEntry(&entry)
 	return saveAndSendStoreChangedMsg
 }
 
@@ -94,6 +110,24 @@ func SetLanguage(l i18n.Language) tea.Cmd {
 
 func GetLanguage() i18n.Language {
 	return s.language
+}
+
+func SetActiveView(v types.View) tea.Cmd {
+	s.activeView = v
+	return saveAndSendStoreChangedMsg
+}
+
+func GetActiveView() types.View {
+	return s.activeView
+}
+
+func SetActiveEntry(v *types.Entry) tea.Cmd {
+	s.activeEntry = v
+	return saveAndSendStoreChangedMsg
+}
+
+func GetActiveEntry() *types.Entry {
+	return s.activeEntry
 }
 
 func Strings() i18n.Strings {
@@ -134,7 +168,7 @@ func loadFromFileOrUseDefaults() {
 		s.entries = make([]types.Entry, 0)
 		s.language = i18n.LANG_ENGLISH
 	} else {
-		s = jsonToStore(file)
+		loadFromJson(file, &s)
 	}
 }
 
@@ -152,15 +186,12 @@ func storeToJson(s store) storeJsonFile {
 	}
 }
 
-func jsonToStore(f []byte) store {
+func loadFromJson(f []byte, s *store) {
 	sj := storeJsonFile{}
 	json.Unmarshal(f, &sj)
 
-	store := store{}
-	store.date = sj.Date
-	store.hoursPerDay = sj.HoursPerDay
-	store.entries = sj.Entries
-	store.language = sj.Language
-
-	return store
+	s.date = sj.Date
+	s.hoursPerDay = sj.HoursPerDay
+	s.entries = sj.Entries
+	s.language = sj.Language
 }
