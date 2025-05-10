@@ -8,4 +8,4 @@ A small terminal application to track your daily work time because I wanted to b
 
 ### Download
 
-You can download the most recent version of gowt from the [releases page](https://github.com/simon-kolkmann/gowt/releases).
+You can download the most recent version of gowt from the [releases page](https://codeberg.org/simon-kolkmann/gowt/releases).
