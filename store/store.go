@@ -3,6 +3,7 @@ package store
 import (
 	"encoding/json"
 	"gowt/i18n"
+	"gowt/messages"
 	"gowt/types"
 	"os"
 	"path/filepath"
@@ -114,7 +115,12 @@ func GetLanguage() i18n.Language {
 
 func SetActiveView(v types.View) tea.Cmd {
 	s.activeView = v
-	return saveAndSendStoreChangedMsg
+
+	saveToFile(s)
+
+	return func() tea.Msg {
+		return messages.ViewChangedMsg(v)
+	}
 }
 
 func GetActiveView() types.View {
