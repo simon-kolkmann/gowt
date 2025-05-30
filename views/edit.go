@@ -82,11 +82,20 @@ func (e *Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			validate(&e.end)
 
 			if !e.hasError() {
-				start, _ := time.Parse(time.TimeOnly, e.start.Value())
-				end, _ := time.Parse(time.TimeOnly, e.end.Value())
+				now := time.Now()
 
-				store.GetActiveEntry().Start = start
-				store.GetActiveEntry().End = end
+				// FIXME: well...
+				if e.start.Value() != "" {
+					start, _ := time.Parse(time.TimeOnly, e.start.Value())
+					start = time.Date(now.Year(), now.Month(), now.Day(), start.Hour(), start.Minute(), start.Second(), 0, now.Location())
+					store.GetActiveEntry().Start = start
+				}
+
+				if e.end.Value() != "" {
+					end, _ := time.Parse(time.TimeOnly, e.end.Value())
+					end = time.Date(now.Year(), now.Month(), now.Day(), end.Hour(), end.Minute(), end.Second(), 0, now.Location())
+					store.GetActiveEntry().End = end
+				}
 
 				// FIXME: persist in a nicer way
 				cmd = store.SetEntries(store.GetEntries())
@@ -97,6 +106,7 @@ func (e *Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case messages.ViewChangedMsg:
 		e.SetEntry(store.GetActiveEntry())
+		e.showMessage = false
 	}
 
 	return e, cmd
@@ -186,7 +196,14 @@ func (e *Edit) autoFormatValue(input *textinput.Model, msg tea.KeyMsg) {
 }
 
 func validate(input *textinput.Model) {
-	input.Err = input.Validate(input.Value())
+	value := input.Value()
+
+	if len(value) == 0 {
+		input.Err = nil
+	} else {
+		input.Err = input.Validate(input.Value())
+	}
+
 }
 
 func (e *Edit) getFocusedTextInput() *textinput.Model {

@@ -91,7 +91,7 @@ func GetEntries() []types.Entry {
 
 func AddEntry(entry types.Entry) tea.Cmd {
 	s.entries = append(s.entries, entry)
-	SetActiveEntry(&entry)
+	SetActiveEntry(&s.entries[len(s.entries)-1])
 	return saveAndSendStoreChangedMsg
 }
 
