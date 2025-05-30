@@ -7,18 +7,13 @@ import (
 	"gowt/types"
 	"gowt/util"
 	"gowt/views"
-	"io"
-	"os"
 
-	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/davecgh/go-spew/spew"
 )
 
 type app struct {
-	dump     io.Writer
 	clock    views.Clock
 	settings views.Settings
 	edit     views.Edit
@@ -28,21 +23,12 @@ type app struct {
 }
 
 func NewApp() app {
-	var dump *os.File
-	if _, ok := os.LookupEnv("DEBUG"); ok {
-		var err error
-		dump, err = os.OpenFile("messages.log", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
-		if err != nil {
-			os.Exit(1)
-		}
-	}
 
 	return app{
 		clock:    views.NewClock(),
 		settings: views.NewSettings(),
 		edit:     views.NewEdit(),
 		help:     help.NewHelp(),
-		dump:     dump,
 	}
 }
 
@@ -53,14 +39,7 @@ func (a app) Init() tea.Cmd {
 }
 
 func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	if a.dump != nil {
-		_, isTimeTickMsg := msg.(util.TimeTickMsg)
-		_, isBlinkMsg := msg.(cursor.BlinkMsg)
-
-		if !isTimeTickMsg && !isBlinkMsg {
-			spew.Fdump(a.dump, msg)
-		}
-	}
+	util.LogMessage(msg)
 
 	var cmd tea.Cmd
 	cmds := make([]tea.Cmd, 0)
