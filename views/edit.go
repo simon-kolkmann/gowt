@@ -1,6 +1,7 @@
 package views
 
 import (
+	"gowt/messages"
 	"gowt/store"
 	"gowt/types"
 	"gowt/util"
@@ -83,6 +84,7 @@ func (e *Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !e.hasError() {
 				start, _ := time.Parse(time.TimeOnly, e.start.Value())
 				end, _ := time.Parse(time.TimeOnly, e.end.Value())
+
 				store.GetActiveEntry().Start = start
 				store.GetActiveEntry().End = end
 
@@ -93,7 +95,7 @@ func (e *Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			e.showMessage = true
 		}
 
-	case store.StoreChangedMsg:
+	case messages.ViewChangedMsg:
 		e.SetEntry(store.GetActiveEntry())
 	}
 
