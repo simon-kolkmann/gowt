@@ -8,4 +8,5 @@ services:
     environment:
       TERM: xterm-256color
     volumes:
+      - $HOME/.ssh:/root/.ssh:ro
       - $PWD:/app/gowt
