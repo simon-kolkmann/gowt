@@ -1,6 +1,7 @@
 services:
   gowt:
-    image: golang:1.24.0
+    build:
+      context: .
     container_name: gowt
     working_dir: /app/gowt
     command: /bin/sh -c "while sleep 1000; do :; done"
