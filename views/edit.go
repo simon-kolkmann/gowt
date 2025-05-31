@@ -42,12 +42,20 @@ func NewEdit() Edit {
 	}
 }
 
-func (e *Edit) Init() tea.Cmd {
+func (e Edit) Init() tea.Cmd {
 	return nil
 }
 
-func (e *Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
+func (e Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	cmds := make([]tea.Cmd, 3)
+
+	start, cmd := e.start.Update(msg)
+	e.start = start
+	cmds = append(cmds, cmd)
+
+	end, cmd := e.end.Update(msg)
+	e.end = end
+	cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -71,11 +79,11 @@ func (e *Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			"right",
 			"delete",
 			"backspace":
-			input := e.getFocusedTextInput()
-			*input, cmd = input.Update(msg)
-			e.autoFormatValue(input, msg)
+			input, cmd := e.getFocusedTextInput().Update(msg)
+			e.autoFormatValue(&input, msg)
 			e.message = ""
 			e.showMessage = false
+			cmds = append(cmds, cmd)
 
 		case "enter":
 			validate(&e.start)
@@ -98,21 +106,24 @@ func (e *Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				// FIXME: persist in a nicer way
-				cmd = store.SetEntries(store.GetEntries())
+				cmds = append(cmds, store.SetEntries(store.GetEntries()))
 			}
 
 			e.showMessage = true
 		}
 
 	case messages.ViewChangedMsg:
+		e.end.Blur()
+		e.start.CursorEnd()
+		cmds = append(cmds, e.start.Focus())
 		e.SetEntry(store.GetActiveEntry())
 		e.showMessage = false
 	}
 
-	return e, cmd
+	return e, tea.Batch(cmds...)
 }
 
-func (e *Edit) View() string {
+func (e Edit) View() string {
 	if e.showMessage {
 		if e.hasError() {
 			e.message = "❌" + store.Strings().ENTRY_SAVE_FAILED

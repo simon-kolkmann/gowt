@@ -28,5 +28,4 @@ func LogMessage(msg tea.Msg) {
 	if dump != nil && !isTimeTickMsg && !isBlinkMsg {
 		spew.Fdump(dump, msg)
 	}
-
 }

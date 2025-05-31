@@ -52,11 +52,11 @@ func clockOut() tea.Msg {
 	return messages.ClockOutMsg{}
 }
 
-func (c *Clock) Init() tea.Cmd {
+func (c Clock) Init() tea.Cmd {
 	return nil
 }
 
-func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (c Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	cmds := make([]tea.Cmd, 0)
 
@@ -108,7 +108,7 @@ func (c *Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return c, tea.Batch(cmds...)
 }
 
-func (c *Clock) View() string {
+func (c Clock) View() string {
 	row := lipgloss.NewStyle().Margin(0, 0, 1, 0).Render
 
 	elapsed, percent := c.getElapsedTime()

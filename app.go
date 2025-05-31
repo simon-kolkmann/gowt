@@ -74,27 +74,32 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		}
-
-	case store.StoreChangedMsg:
-		_, cmd = a.clock.Update(msg)
-		cmds = append(cmds, cmd)
-
-		_, cmd = a.settings.Update(msg)
-		cmds = append(cmds, cmd)
 	}
 
 	if store.GetActiveView() == types.ViewClock {
-		_, cmd = a.clock.Update(msg)
+		clock, cmd := a.clock.Update(msg)
+		if clock, ok := clock.(views.Clock); ok {
+			a.clock = clock
+		}
+
 		cmds = append(cmds, cmd)
 	}
 
 	if store.GetActiveView() == types.ViewSettings {
-		_, cmd = a.settings.Update(msg)
+		settings, cmd := a.settings.Update(msg)
+		if settings, ok := settings.(views.Settings); ok {
+			a.settings = settings
+		}
+
 		cmds = append(cmds, cmd)
 	}
 
 	if store.GetActiveView() == types.ViewEdit {
-		_, cmd = a.edit.Update(msg)
+		edit, cmd := a.edit.Update(msg)
+		if edit, ok := edit.(views.Edit); ok {
+			a.edit = edit
+		}
+
 		cmds = append(cmds, cmd)
 	}
 

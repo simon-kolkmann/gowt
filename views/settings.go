@@ -18,6 +18,7 @@ func NewSettings() Settings {
 	hoursPerDay := textinput.New()
 	hoursPerDay.Placeholder = "1h23m4s"
 	hoursPerDay.CharLimit = 10
+	hoursPerDay.Cursor.Blink = true
 	hoursPerDay.Focus()
 
 	return Settings{
@@ -25,11 +26,11 @@ func NewSettings() Settings {
 	}
 }
 
-func (s *Settings) Init() tea.Cmd {
+func (s Settings) Init() tea.Cmd {
 	return s.hoursPerDay.Cursor.BlinkCmd()
 }
 
-func (s *Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (s Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	s.hoursPerDay, cmd = s.hoursPerDay.Update(msg)
 
@@ -45,7 +46,7 @@ func (s *Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return s, cmd
 }
 
-func (s *Settings) View() string {
+func (s Settings) View() string {
 	box := lipgloss.
 		NewStyle().Align(lipgloss.Center).
 		Padding(1, 2, 2, 2).
