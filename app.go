@@ -23,7 +23,6 @@ type app struct {
 }
 
 func NewApp() app {
-
 	return app{
 		clock:    views.NewClock(),
 		settings: views.NewSettings(),
