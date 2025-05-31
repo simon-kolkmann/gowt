@@ -14,9 +14,9 @@ import (
 )
 
 type app struct {
-	clock    views.Clock
-	settings views.Settings
-	edit     views.Edit
+	clock    tea.Model
+	settings tea.Model
+	edit     tea.Model
 	help     help.Model
 	width    int
 	height   int
@@ -78,28 +78,19 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if store.GetActiveView() == types.ViewClock {
 		clock, cmd := a.clock.Update(msg)
-		if clock, ok := clock.(views.Clock); ok {
-			a.clock = clock
-		}
-
+		a.clock = clock
 		cmds = append(cmds, cmd)
 	}
 
 	if store.GetActiveView() == types.ViewSettings {
 		settings, cmd := a.settings.Update(msg)
-		if settings, ok := settings.(views.Settings); ok {
-			a.settings = settings
-		}
-
+		a.settings = settings
 		cmds = append(cmds, cmd)
 	}
 
 	if store.GetActiveView() == types.ViewEdit {
 		edit, cmd := a.edit.Update(msg)
-		if edit, ok := edit.(views.Edit); ok {
-			a.edit = edit
-		}
-
+		a.edit = edit
 		cmds = append(cmds, cmd)
 	}
 
