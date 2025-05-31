@@ -9,3 +9,4 @@ services:
       TERM: xterm-256color
     volumes:
       - $PWD:/app/gowt
+      - $HOME/.ssh:/home/dev/.ssh
