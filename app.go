@@ -17,7 +17,7 @@ type app struct {
 	clock    tea.Model
 	settings tea.Model
 	edit     tea.Model
-	help     help.Model
+	help     tea.Model
 	width    int
 	height   int
 }
@@ -77,25 +77,22 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if store.GetActiveView() == types.ViewClock {
-		clock, cmd := a.clock.Update(msg)
-		a.clock = clock
+		a.clock, cmd = a.clock.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
 	if store.GetActiveView() == types.ViewSettings {
-		settings, cmd := a.settings.Update(msg)
-		a.settings = settings
+		a.settings, cmd = a.settings.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
 	if store.GetActiveView() == types.ViewEdit {
-		edit, cmd := a.edit.Update(msg)
-		a.edit = edit
+		a.edit, cmd = a.edit.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
 	// always visible
-	_, cmd = a.help.Update(msg)
+	a.help, cmd = a.help.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return a, tea.Batch(cmds...)

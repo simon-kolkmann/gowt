@@ -1,7 +1,6 @@
 package views
 
 import (
-	"gowt/bubbles/help"
 	last_clock_in "gowt/bubbles/last-clock-in"
 	"gowt/bubbles/table"
 	"gowt/messages"
@@ -23,8 +22,7 @@ type Clock struct {
 	now         string
 	progress    progress.Model
 	table       table.Model
-	lastClockIn last_clock_in.Model
-	help        help.Model
+	lastClockIn tea.Model
 }
 
 func NewClock() Clock {
@@ -36,7 +34,6 @@ func NewClock() Clock {
 		),
 		table:       table.NewTable(),
 		lastClockIn: last_clock_in.NewLastClockIn(),
-		help:        help.NewHelp(),
 	}
 }
 
@@ -98,10 +95,8 @@ func (c Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	_, cmd = c.table.Update(msg)
 	cmds = append(cmds, cmd)
 
-	_, cmd = c.lastClockIn.Update(msg)
-	cmds = append(cmds, cmd)
-
-	_, cmd = c.help.Update(msg)
+	lastClockIn, cmd := c.lastClockIn.Update(msg)
+	c.lastClockIn = lastClockIn
 	cmds = append(cmds, cmd)
 
 	// Return the updated model to the Bubble Tea runtime for processing.

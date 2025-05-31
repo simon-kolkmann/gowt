@@ -21,11 +21,11 @@ func NewLastClockIn() Model {
 	}
 }
 
-func (m *Model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case messages.ClockInMsg:
@@ -42,7 +42,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *Model) View() string {
+func (m Model) View() string {
 	style := lipgloss.NewStyle().Bold(true)
 
 	if m.lastClockIn.IsZero() {
