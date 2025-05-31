@@ -1,4 +1,4 @@
-# gowt - **Go** **W**ork **T**imer
+# `gowt` - **Go** **W**ork **T**imer
 
 A small terminal application to track your daily work time because I wanted to build a TUI. Made with [Bubbletea](https://github.com/charmbracelet/bubbletea).
 
@@ -8,4 +8,4 @@ A small terminal application to track your daily work time because I wanted to b
 
 ### Download
 
-You can download the most recent version of gowt from the [releases page](https://codeberg.org/simon-kolkmann/gowt/releases).
+You can download the most recent version of `gowt` from the [releases page](https://codeberg.org/simon-kolkmann/gowt/releases).
