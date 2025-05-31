@@ -3,6 +3,9 @@
   "service": "gowt",
   "dockerComposeFile": ["docker-compose.yml"],
   "workspaceFolder": "/app/gowt",
+  "features": {
+    "codeberg.org/simon-kolkmann/devcontainer/watchexec:1": {}
+  },
   "customizations": {
     "vscode": {
       "extensions": [
