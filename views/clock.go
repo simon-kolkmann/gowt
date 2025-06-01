@@ -21,7 +21,7 @@ import (
 type Clock struct {
 	now         string
 	progress    progress.Model
-	table       table.Model
+	table       tea.Model
 	lastClockIn tea.Model
 }
 
@@ -92,7 +92,7 @@ func (c Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, store.SetEntries(entries))
 	}
 
-	_, cmd = c.table.Update(msg)
+	c.table, cmd = c.table.Update(msg)
 	cmds = append(cmds, cmd)
 
 	lastClockIn, cmd := c.lastClockIn.Update(msg)
