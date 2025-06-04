@@ -8,3 +8,5 @@ RUN groupadd -g 1000 dev && \
 useradd -m -u 1000 -s /bin/bash -g dev dev
 
 USER dev
+
+RUN go install github.com/oligot/go-mod-upgrade@latest
