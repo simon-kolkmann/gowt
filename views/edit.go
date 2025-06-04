@@ -72,11 +72,7 @@ func (e Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			e.showMessage = false
 
 		case "enter":
-			store.GetActiveEntry().Start = e.start.Time
-			store.GetActiveEntry().End = e.end.Time
-
-			// FIXME: persist in a nicer way
-			cmds = append(cmds, store.SetEntries(store.GetEntries()))
+			cmds = append(cmds, store.UpdateActiveEntry(e.start.Time, e.end.Time))
 
 			e.showMessage = true
 		}
@@ -85,7 +81,8 @@ func (e Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		e.end.Input.Blur()
 		e.start.Input.CursorEnd()
 		cmds = append(cmds, e.start.Input.Focus())
-		e.SetEntry(store.GetActiveEntry())
+		entry := store.GetActiveEntry()
+		e.SetEntry(&entry)
 		e.showMessage = false
 	}
 

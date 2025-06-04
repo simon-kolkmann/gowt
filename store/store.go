@@ -132,8 +132,17 @@ func SetActiveEntry(v *types.Entry) tea.Cmd {
 	return saveAndSendStoreChangedMsg
 }
 
-func GetActiveEntry() *types.Entry {
-	return s.activeEntry
+// returns a copy of the active entry
+// do not update this copy - use UpdateActiveEntry instead.
+func GetActiveEntry() types.Entry {
+	return *s.activeEntry
+}
+
+func UpdateActiveEntry(start, end time.Time) tea.Cmd {
+	s.activeEntry.Start = start
+	s.activeEntry.End = end
+
+	return saveAndSendStoreChangedMsg
 }
 
 func Strings() i18n.Strings {
