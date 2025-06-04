@@ -17,6 +17,7 @@ type KeyMap struct {
 	Enter     key.Binding
 	Quit      key.Binding
 	CtrlL     key.Binding
+	CtrlR     key.Binding
 	Delete    key.Binding
 	AltDelete key.Binding
 }
@@ -29,6 +30,7 @@ var Keys KeyMap = KeyMap{
 	Enter:     key.NewBinding(key.WithKeys("enter")),
 	Quit:      key.NewBinding(key.WithKeys("q"), key.WithKeys("ctrl+c")),
 	CtrlL:     key.NewBinding(key.WithKeys("ctrl+l")),
+	CtrlR:     key.NewBinding(key.WithKeys("ctrl+r")),
 	Delete:    key.NewBinding(key.WithKeys("delete")),
 	AltDelete: key.NewBinding(key.WithKeys("alt+delete")),
 }
@@ -40,6 +42,7 @@ func (k KeyMap) FullHelp(view types.View, strings i18n.Strings) [][]key.Binding 
 	Keys.Down.SetHelp("↓", strings.HELP_MOVE_DOWN)
 	Keys.Quit.SetHelp(strings.HELP_QUIT_KEY, strings.HELP_QUIT)
 	Keys.CtrlL.SetHelp(strings.HELP_CHANGE_LANG_KEY, strings.HELP_CHANGE_LANG)
+	Keys.CtrlR.SetHelp(strings.HELP_RESET_KEY, strings.HELP_RESET)
 	Keys.Delete.SetHelp(strings.HELP_DELETE_ENTRY_KEY, strings.HELP_DELETE_ENTRY)
 	Keys.AltDelete.SetHelp(strings.HELP_DELETE_ALL_ENTRIES_KEY, strings.HELP_DELETE_ALL_ENTRIES)
 
@@ -65,7 +68,7 @@ func (k KeyMap) FullHelp(view types.View, strings i18n.Strings) [][]key.Binding 
 		Keys.Enter.SetHelp(strings.HELP_SUBMIT_KEY, strings.HELP_SUBMIT)
 		Keys.CtrlLeft.SetHelp(strings.HELP_PREV_VIEW_KEY, strings.HELP_VIEW_NAME(types.ViewClock))
 		return [][]key.Binding{
-			{k.Enter, k.CtrlLeft},
+			{k.Enter, k.CtrlR, k.CtrlLeft},
 			{},
 		}
 

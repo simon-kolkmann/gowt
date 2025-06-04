@@ -75,6 +75,10 @@ func (e Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, store.UpdateActiveEntry(e.start.Time, e.end.Time))
 
 			e.showMessage = true
+
+		case "ctrl+r":
+			entry := store.GetActiveEntry()
+			e.SetEntry(&entry)
 		}
 
 	case messages.ViewChangedMsg:

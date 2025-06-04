@@ -44,6 +44,8 @@ type Strings struct {
 	HELP_DELETE_ALL_ENTRIES_KEY string
 	HELP_SUBMIT                 string
 	HELP_SUBMIT_KEY             string
+	HELP_RESET                  string
+	HELP_RESET_KEY              string
 }
 
 var German Strings = Strings{
@@ -94,6 +96,8 @@ var German Strings = Strings{
 	HELP_DELETE_ALL_ENTRIES_KEY: "alt+entf",
 	HELP_SUBMIT:                 "bestätigen",
 	HELP_SUBMIT_KEY:             "enter",
+	HELP_RESET:                  "zurücksetzen",
+	HELP_RESET_KEY:              "strg+r",
 }
 
 var English Strings = Strings{
@@ -144,4 +148,6 @@ var English Strings = Strings{
 	HELP_DELETE_ALL_ENTRIES_KEY: "alt+del",
 	HELP_SUBMIT:                 "submit",
 	HELP_SUBMIT_KEY:             "enter",
+	HELP_RESET:                  "reset",
+	HELP_RESET_KEY:              "ctrl+r",
 }
