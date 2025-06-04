@@ -113,7 +113,7 @@ func (c Clock) View() string {
 		row(strings.Replace(store.Strings().CURRENT_TIME, "$time", c.now, 1)),
 		row(c.lastClockIn.View()),
 		row(c.progress.ViewAs(percent/100)),
-		row(elapsed+" / "+store.GetHoursPerDay().String()+" ("+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
+		row(elapsed+" / "+store.GetHoursPerDay().String()+" ("+c.getRemainingTime()+", "+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
 	)
 
 	if len(store.GetEntries()) > 0 {
@@ -136,4 +136,20 @@ func (c Clock) getElapsedTime() (string, float64) {
 	percent := elapsed.Seconds() / (store.GetHoursPerDay().Seconds() / 100)
 
 	return elapsed.String(), percent
+}
+
+func (c Clock) getRemainingTime() string {
+	var elapsed time.Duration
+
+	for _, entry := range store.GetEntries() {
+		elapsed += entry.Duration()
+	}
+
+	remaining := (store.GetHoursPerDay() - elapsed) * -1
+
+	if remaining < 0 {
+		return remaining.String()
+	} else {
+		return "+" + remaining.String()
+	}
 }
