@@ -113,7 +113,8 @@ func (c Clock) View() string {
 		row(strings.Replace(store.Strings().CURRENT_TIME, "$time", c.now, 1)),
 		row(c.lastClockIn.View()),
 		row(c.progress.ViewAs(percent/100)),
-		row(elapsed+" / "+store.GetHoursPerDay().String()+" ("+c.getRemainingTime()+", "+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
+		row(elapsed+" / "+store.GetHoursPerDay().String()+" ("+c.getRemainingTimeAsString()+", "+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
+		row("Estimated end of workday: "+c.getEstimatedEndOfWorkdayAsString()),
 	)
 
 	if len(store.GetEntries()) > 0 {
@@ -138,18 +139,34 @@ func (c Clock) getElapsedTime() (string, float64) {
 	return elapsed.String(), percent
 }
 
-func (c Clock) getRemainingTime() string {
+func (c Clock) getRemainingTime() time.Duration {
 	var elapsed time.Duration
 
 	for _, entry := range store.GetEntries() {
 		elapsed += entry.Duration()
 	}
 
-	remaining := (store.GetHoursPerDay() - elapsed) * -1
+	return time.Duration(store.GetHoursPerDay() - elapsed)
+
+}
+
+func (c Clock) getRemainingTimeAsString() string {
+	remaining := c.getRemainingTime() * -1
 
 	if remaining < 0 {
 		return remaining.String()
 	} else {
 		return "+" + remaining.String()
 	}
+}
+
+func (c Clock) getEstimatedEndOfWorkday() time.Time {
+	remaining := c.getRemainingTime()
+	estimatedEndOfWorkday := time.Now().Add(remaining)
+	return estimatedEndOfWorkday
+}
+
+func (c Clock) getEstimatedEndOfWorkdayAsString() string {
+	estimatedEndOfWorkday := c.getEstimatedEndOfWorkday()
+	return estimatedEndOfWorkday.Format(time.TimeOnly)
 }
