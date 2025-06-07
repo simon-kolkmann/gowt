@@ -120,13 +120,17 @@ func (c Clock) View() string {
 
 	elapsed, percent := c.getElapsedTime()
 
+	hoursPerDayIncludingBreaks := store.GetHoursPerDayIncludingBreaks().String()
+	remainingTime := c.getRemainingTimeAsString()
+	estimatedEndOfWorkday := c.getEstimatedEndOfWorkdayAsString()
+
 	components := []string{}
 	components = append(components,
 		row(strings.Replace(store.Strings().CURRENT_TIME, "$time", c.now, 1)),
 		row(c.lastClockIn.View()),
 		row(c.progress.ViewAs(percent/100)),
-		row(elapsed+" / "+store.GetHoursPerDay().String()+" ("+c.getRemainingTimeAsString()+", "+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
-		row(store.Strings().ESTIMATED_END_OF_WORKDAY+": "+c.getEstimatedEndOfWorkdayAsString()),
+		row(elapsed+" / "+hoursPerDayIncludingBreaks+" ("+remainingTime+", "+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
+		row(store.Strings().ESTIMATED_END_OF_WORKDAY+": "+estimatedEndOfWorkday),
 	)
 
 	if len(store.GetEntries()) > 0 {
@@ -146,7 +150,7 @@ func (c Clock) getElapsedTime() (string, float64) {
 		elapsed += entry.Duration()
 	}
 
-	percent := elapsed.Seconds() / (store.GetHoursPerDay().Seconds() / 100)
+	percent := elapsed.Seconds() / (store.GetHoursPerDayIncludingBreaks().Seconds() / 100)
 
 	return elapsed.String(), percent
 }
@@ -158,7 +162,7 @@ func (c Clock) getRemainingTime() time.Duration {
 		elapsed += entry.Duration()
 	}
 
-	return time.Duration(store.GetHoursPerDay() - elapsed)
+	return time.Duration(store.GetHoursPerDayIncludingBreaks() - elapsed)
 
 }
 

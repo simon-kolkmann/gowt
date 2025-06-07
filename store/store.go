@@ -15,13 +15,14 @@ import (
 var s store = store{}
 
 type store struct {
-	activeView     types.View
-	activeEntry    *types.Entry
-	date           time.Time
-	hoursPerDay    time.Duration
-	dailySetupTime time.Duration
-	entries        []types.Entry
-	language       i18n.Language
+	activeView      types.View
+	activeEntry     *types.Entry
+	date            time.Time
+	hoursPerDay     time.Duration
+	dailySetupTime  time.Duration
+	mandatoryBreaks []types.MandatoryBreak
+	entries         []types.Entry
+	language        i18n.Language
 }
 
 type storeJsonFile struct {
@@ -104,6 +105,18 @@ func SetHoursPerDay(hoursPerDay time.Duration) tea.Cmd {
 
 func GetHoursPerDay() time.Duration {
 	return s.hoursPerDay
+}
+
+func GetHoursPerDayIncludingBreaks() time.Duration {
+	total := s.hoursPerDay
+
+	for _, b := range s.mandatoryBreaks {
+		if b.After > s.hoursPerDay {
+			total += b.Duration
+		}
+	}
+
+	return total
 }
 
 func SetDailySetupTime(dailySetupTime time.Duration) tea.Cmd {
@@ -197,11 +210,24 @@ func getFilePath() string {
 func loadFromFileOrUseDefaults() {
 	file, err := os.ReadFile(getFilePath())
 
+	// FIXME: settings ui / persist / empty default
+	s.mandatoryBreaks = append(
+		s.mandatoryBreaks,
+		types.MandatoryBreak{
+			After:    time.Duration(time.Hour * 6),
+			Duration: time.Duration(time.Minute * 30),
+		}, types.MandatoryBreak{
+			After:    time.Duration(time.Hour*9 + time.Minute*30),
+			Duration: time.Duration(time.Minute * 15),
+		},
+	)
+
 	if err != nil {
 		s.date = time.Now()
 		s.hoursPerDay = time.Duration(time.Hour * 8)
 		s.dailySetupTime = time.Duration(0)
 		s.entries = make([]types.Entry, 0)
+		s.mandatoryBreaks = make([]types.MandatoryBreak, 0)
 		s.language = i18n.LANG_ENGLISH
 	} else {
 		loadFromJson(file, &s)
