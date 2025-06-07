@@ -10,3 +10,4 @@ services:
     volumes:
       - $PWD:/app/gowt
       - $HOME/.ssh:/home/dev/.ssh
+      - /etc/localtime:/etc/localtime:ro
