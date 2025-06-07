@@ -20,6 +20,8 @@ type KeyMap struct {
 	CtrlR     key.Binding
 	Delete    key.Binding
 	AltDelete key.Binding
+	Tab       key.Binding
+	ShiftTab  key.Binding
 }
 
 var Keys KeyMap = KeyMap{
@@ -33,6 +35,8 @@ var Keys KeyMap = KeyMap{
 	CtrlR:     key.NewBinding(key.WithKeys("ctrl+r")),
 	Delete:    key.NewBinding(key.WithKeys("delete")),
 	AltDelete: key.NewBinding(key.WithKeys("alt+delete")),
+	Tab:       key.NewBinding(key.WithKeys("tab")),
+	ShiftTab:  key.NewBinding(key.WithKeys("shift+tab")),
 }
 
 // FullHelp returns keybindings for the expanded help view. It's part of the

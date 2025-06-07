@@ -26,9 +26,7 @@ type Clock struct {
 }
 
 func NewClock() Clock {
-
 	return Clock{
-
 		progress: progress.New(
 			progress.WithSolidFill(types.Theme.Success),
 			progress.WithWidth(50),
@@ -40,6 +38,11 @@ func NewClock() Clock {
 }
 
 func clockIn(entry types.Entry) tea.Cmd {
+	// if this is the first entry of the day, subtract the daily setup time
+	if len(store.GetEntries()) == 0 {
+		entry.Start = entry.Start.Add(store.GetDailySetupTime() * -1)
+	}
+
 	return func() tea.Msg {
 		return messages.ClockInMsg{
 			Entry: entry,

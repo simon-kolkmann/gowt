@@ -15,19 +15,21 @@ import (
 var s store = store{}
 
 type store struct {
-	activeView  types.View
-	activeEntry *types.Entry
-	date        time.Time
-	hoursPerDay time.Duration
-	entries     []types.Entry
-	language    i18n.Language
+	activeView     types.View
+	activeEntry    *types.Entry
+	date           time.Time
+	hoursPerDay    time.Duration
+	dailySetupTime time.Duration
+	entries        []types.Entry
+	language       i18n.Language
 }
 
 type storeJsonFile struct {
-	Date        time.Time     `json:"date"`
-	HoursPerDay time.Duration `json:"hoursPerDay"`
-	Entries     []types.Entry `json:"entries"`
-	Language    i18n.Language `json:"language"`
+	Date           time.Time     `json:"date"`
+	HoursPerDay    time.Duration `json:"hoursPerDay"`
+	DailySetupTime time.Duration `json:"dailySetupTime"`
+	Entries        []types.Entry `json:"entries"`
+	Language       i18n.Language `json:"language"`
 }
 
 type StoreChangedMsg struct{}
@@ -102,6 +104,15 @@ func SetHoursPerDay(hoursPerDay time.Duration) tea.Cmd {
 
 func GetHoursPerDay() time.Duration {
 	return s.hoursPerDay
+}
+
+func SetDailySetupTime(dailySetupTime time.Duration) tea.Cmd {
+	s.dailySetupTime = dailySetupTime
+	return saveAndSendStoreChangedMsg
+}
+
+func GetDailySetupTime() time.Duration {
+	return s.dailySetupTime
 }
 
 func SetLanguage(l i18n.Language) tea.Cmd {
@@ -189,6 +200,7 @@ func loadFromFileOrUseDefaults() {
 	if err != nil {
 		s.date = time.Now()
 		s.hoursPerDay = time.Duration(time.Hour * 8)
+		s.dailySetupTime = time.Duration(0)
 		s.entries = make([]types.Entry, 0)
 		s.language = i18n.LANG_ENGLISH
 	} else {
@@ -203,10 +215,11 @@ func saveToFile(s store) {
 
 func storeToJson(s store) storeJsonFile {
 	return storeJsonFile{
-		Date:        s.date,
-		HoursPerDay: s.hoursPerDay,
-		Entries:     s.entries,
-		Language:    s.language,
+		Date:           s.date,
+		HoursPerDay:    s.hoursPerDay,
+		DailySetupTime: s.dailySetupTime,
+		Entries:        s.entries,
+		Language:       s.language,
 	}
 }
 
@@ -216,6 +229,7 @@ func loadFromJson(f []byte, s *store) {
 
 	s.date = sj.Date
 	s.hoursPerDay = sj.HoursPerDay
+	s.dailySetupTime = sj.DailySetupTime
 	s.entries = sj.Entries
 	s.language = sj.Language
 }

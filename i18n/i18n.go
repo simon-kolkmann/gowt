@@ -21,8 +21,9 @@ type Strings struct {
 	CLOCKED_OUT              string
 	ESTIMATED_END_OF_WORKDAY string
 
-	VIEW_CAPTION_SETTINGS string
-	HOURS_PER_DAY_LABEL   string
+	VIEW_CAPTION_SETTINGS  string
+	HOURS_PER_DAY_LABEL    string
+	DAILY_SETUP_TIME_LABEL string
 
 	EDIT_ENTRY         string
 	ENTRY_SAVE_SUCCESS string
@@ -59,8 +60,9 @@ var German Strings = Strings{
 	CLOCKED_OUT:              "Derzeit nicht eingestempelt.",
 	ESTIMATED_END_OF_WORKDAY: "Voraussichtlicher Feierabend",
 
-	VIEW_CAPTION_SETTINGS: "Einstellungen",
-	HOURS_PER_DAY_LABEL:   "tägliche Arbeitszeit",
+	VIEW_CAPTION_SETTINGS:  "Einstellungen",
+	HOURS_PER_DAY_LABEL:    "tägliche Arbeitszeit",
+	DAILY_SETUP_TIME_LABEL: "tägliche Rüstzeit",
 
 	EDIT_ENTRY:         "Eintrag bearbeiten",
 	ENTRY_SAVE_SUCCESS: "Die Eingaben wurden gespeichert.",
@@ -112,8 +114,9 @@ var English Strings = Strings{
 	CLOCKED_OUT:              "Currently not clocked in.",
 	ESTIMATED_END_OF_WORKDAY: "Estimated end of workday",
 
-	VIEW_CAPTION_SETTINGS: "Settings",
-	HOURS_PER_DAY_LABEL:   "Daily work time",
+	VIEW_CAPTION_SETTINGS:  "Settings",
+	HOURS_PER_DAY_LABEL:    "Daily work time",
+	DAILY_SETUP_TIME_LABEL: "Daily set-up time",
 
 	EDIT_ENTRY:         "Edit entry",
 	ENTRY_SAVE_SUCCESS: "Entry saved.",
