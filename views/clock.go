@@ -26,7 +26,9 @@ type Clock struct {
 }
 
 func NewClock() Clock {
+
 	return Clock{
+
 		progress: progress.New(
 			progress.WithSolidFill(types.Theme.Success),
 			progress.WithWidth(50),
@@ -90,6 +92,13 @@ func (c Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		entries := store.GetEntries()
 		entries[len(entries)-1].End = time.Now()
 		cmds = append(cmds, store.SetEntries(entries))
+
+	case store.StoreChangedMsg:
+		if store.IsClockedIn() {
+			c.progress.FullColor = types.Theme.Success
+		} else {
+			c.progress.FullColor = types.Theme.Error
+		}
 	}
 
 	c.table, cmd = c.table.Update(msg)

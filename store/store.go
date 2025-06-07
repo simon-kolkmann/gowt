@@ -160,6 +160,15 @@ func Strings() i18n.Strings {
 	}
 }
 
+func IsClockedIn() bool {
+	if len(s.entries) == 0 {
+		return false
+	}
+
+	current := s.entries[len(s.entries)-1]
+	return current.End.IsZero()
+}
+
 func saveAndSendStoreChangedMsg() tea.Msg {
 	saveToFile(s)
 
