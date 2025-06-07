@@ -12,13 +12,14 @@ const (
 )
 
 type Strings struct {
-	START        string
-	END          string
-	DURATION     string
-	SUM          string
-	CURRENT_TIME string
-	CLOCKED_IN   string
-	CLOCKED_OUT  string
+	START                    string
+	END                      string
+	DURATION                 string
+	SUM                      string
+	CURRENT_TIME             string
+	CLOCKED_IN               string
+	CLOCKED_OUT              string
+	ESTIMATED_END_OF_WORKDAY string
 
 	VIEW_CAPTION_SETTINGS string
 	HOURS_PER_DAY_LABEL   string
@@ -49,13 +50,14 @@ type Strings struct {
 }
 
 var German Strings = Strings{
-	START:        "Beginn",
-	END:          "Ende",
-	DURATION:     "Dauer",
-	SUM:          "Saldo",
-	CURRENT_TIME: "Es ist $time Uhr.",
-	CLOCKED_IN:   "Eingestempelt seit $time Uhr.",
-	CLOCKED_OUT:  "Derzeit nicht eingestempelt.",
+	START:                    "Beginn",
+	END:                      "Ende",
+	DURATION:                 "Dauer",
+	SUM:                      "Saldo",
+	CURRENT_TIME:             "Es ist $time Uhr.",
+	CLOCKED_IN:               "Eingestempelt seit $time Uhr.",
+	CLOCKED_OUT:              "Derzeit nicht eingestempelt.",
+	ESTIMATED_END_OF_WORKDAY: "Voraussichtlicher Feierabend",
 
 	VIEW_CAPTION_SETTINGS: "Einstellungen",
 	HOURS_PER_DAY_LABEL:   "tägliche Arbeitszeit",
@@ -101,13 +103,14 @@ var German Strings = Strings{
 }
 
 var English Strings = Strings{
-	START:        "Start",
-	END:          "End",
-	DURATION:     "Duration",
-	SUM:          "Sum",
-	CURRENT_TIME: "It is $time.",
-	CLOCKED_IN:   "Clocked in since $time.",
-	CLOCKED_OUT:  "Currently not clocked in.",
+	START:                    "Start",
+	END:                      "End",
+	DURATION:                 "Duration",
+	SUM:                      "Sum",
+	CURRENT_TIME:             "It is $time.",
+	CLOCKED_IN:               "Clocked in since $time.",
+	CLOCKED_OUT:              "Currently not clocked in.",
+	ESTIMATED_END_OF_WORKDAY: "Estimated end of workday",
 
 	VIEW_CAPTION_SETTINGS: "Settings",
 	HOURS_PER_DAY_LABEL:   "Daily work time",

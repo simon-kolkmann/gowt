@@ -114,7 +114,7 @@ func (c Clock) View() string {
 		row(c.lastClockIn.View()),
 		row(c.progress.ViewAs(percent/100)),
 		row(elapsed+" / "+store.GetHoursPerDay().String()+" ("+c.getRemainingTimeAsString()+", "+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
-		row("Estimated end of workday: "+c.getEstimatedEndOfWorkdayAsString()),
+		row(store.Strings().ESTIMATED_END_OF_WORKDAY+": "+c.getEstimatedEndOfWorkdayAsString()),
 	)
 
 	if len(store.GetEntries()) > 0 {
