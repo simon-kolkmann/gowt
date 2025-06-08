@@ -20,6 +20,7 @@ type store struct {
 	date           time.Time
 	hoursPerDay    time.Duration
 	dailySetupTime time.Duration
+	breaks         []types.Break
 	entries        []types.Entry
 	language       i18n.Language
 }
@@ -106,6 +107,22 @@ func GetHoursPerDay() time.Duration {
 	return s.hoursPerDay
 }
 
+func GetHoursPerDayIncludingBreaks() time.Duration {
+	return s.hoursPerDay + GetTotalBreakTime()
+}
+
+func GetTotalBreakTime() time.Duration {
+	var total time.Duration
+
+	for _, b := range s.breaks {
+		if s.hoursPerDay > b.After {
+			total += b.Duration
+		}
+	}
+
+	return total
+}
+
 func SetDailySetupTime(dailySetupTime time.Duration) tea.Cmd {
 	s.dailySetupTime = dailySetupTime
 	return saveAndSendStoreChangedMsg
@@ -171,6 +188,24 @@ func Strings() i18n.Strings {
 	}
 }
 
+func GetElapsedTime() time.Duration {
+	var elapsed time.Duration
+
+	for _, entry := range s.entries {
+		elapsed += entry.Duration()
+	}
+
+	return elapsed
+}
+
+func GetElapsedTimeAsPercent() float64 {
+	return GetElapsedTime().Seconds() / (GetHoursPerDayIncludingBreaks().Seconds() / 100)
+}
+
+func GetRemainingTime() time.Duration {
+	return time.Duration(GetHoursPerDayIncludingBreaks() - GetElapsedTime())
+}
+
 func IsClockedIn() bool {
 	if len(s.entries) == 0 {
 		return false
@@ -178,6 +213,18 @@ func IsClockedIn() bool {
 
 	current := s.entries[len(s.entries)-1]
 	return current.End.IsZero()
+}
+
+func IsAtBreak() bool {
+	elapsed := GetElapsedTime()
+
+	for _, b := range s.breaks {
+		if elapsed > b.After && elapsed < b.After+b.Duration {
+			return true
+		}
+	}
+
+	return false
 }
 
 func saveAndSendStoreChangedMsg() tea.Msg {
@@ -196,6 +243,19 @@ func getFilePath() string {
 
 func loadFromFileOrUseDefaults() {
 	file, err := os.ReadFile(getFilePath())
+
+	// TODO: settings ui / persist / empty default
+	s.breaks = make([]types.Break, 0)
+	s.breaks = append(
+		s.breaks,
+		types.Break{
+			After:    time.Duration(time.Hour * 6),
+			Duration: time.Duration(time.Minute * 30),
+		}, types.Break{
+			After:    time.Duration(time.Hour*9 + time.Minute*30),
+			Duration: time.Duration(time.Minute * 15),
+		},
+	)
 
 	if err != nil {
 		s.date = time.Now()

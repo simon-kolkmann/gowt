@@ -50,6 +50,11 @@ func (m Model) View() string {
 		return style.Foreground(lipgloss.Color(types.Theme.Error)).Render(s)
 	}
 
+	if store.IsAtBreak() {
+		s := store.Strings().AT_BREAK
+		return style.Foreground(lipgloss.Color(types.Theme.Warn)).Render(s)
+	}
+
 	template := store.Strings().CLOCKED_IN
 	lastClockIn := m.lastClockIn.Format(time.TimeOnly)
 	s := strings.Replace(template, "$time", lastClockIn, 1)
