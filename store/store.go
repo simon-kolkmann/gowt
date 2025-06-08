@@ -108,10 +108,14 @@ func GetHoursPerDay() time.Duration {
 }
 
 func GetHoursPerDayIncludingBreaks() time.Duration {
-	total := s.hoursPerDay
+	return s.hoursPerDay + GetTotalBreakTime()
+}
+
+func GetTotalBreakTime() time.Duration {
+	var total time.Duration
 
 	for _, b := range s.mandatoryBreaks {
-		if b.After > s.hoursPerDay {
+		if s.hoursPerDay > b.After {
 			total += b.Duration
 		}
 	}
@@ -216,6 +220,7 @@ func loadFromFileOrUseDefaults() {
 	file, err := os.ReadFile(getFilePath())
 
 	// FIXME: settings ui / persist / empty default
+	s.mandatoryBreaks = make([]types.MandatoryBreak, 0)
 	s.mandatoryBreaks = append(
 		s.mandatoryBreaks,
 		types.MandatoryBreak{
@@ -232,7 +237,6 @@ func loadFromFileOrUseDefaults() {
 		s.hoursPerDay = time.Duration(time.Hour * 8)
 		s.dailySetupTime = time.Duration(0)
 		s.entries = make([]types.Entry, 0)
-		s.mandatoryBreaks = make([]types.MandatoryBreak, 0)
 		s.language = i18n.LANG_ENGLISH
 	} else {
 		loadFromJson(file, &s)
