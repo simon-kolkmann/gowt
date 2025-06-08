@@ -4,6 +4,7 @@
   "dockerComposeFile": ["docker-compose.yml"],
   "workspaceFolder": "/app/gowt",
   "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
     "codeberg.org/simon-kolkmann/devcontainer/watchexec:1": {}
   },
   "customizations": {
