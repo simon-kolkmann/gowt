@@ -116,8 +116,8 @@ func (c Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (c Clock) View() string {
 	row := lipgloss.NewStyle().Margin(0, 0, 1, 0).Render
 
-	elapsed, percent := c.getElapsedTime()
-
+	elapsed := store.GetElapsedTime().String()
+	percent := store.GetElapsedTimeAsPercent()
 	hoursPerDayIncludingBreaks := store.GetHoursPerDayIncludingBreaks().String()
 	remainingTime := c.getRemainingTimeAsString()
 	estimatedEndOfWorkday := c.getEstimatedEndOfWorkdayAsString()
@@ -151,31 +151,8 @@ func (c Clock) View() string {
 	)
 }
 
-func (c Clock) getElapsedTime() (string, float64) {
-	var elapsed time.Duration
-
-	for _, entry := range store.GetEntries() {
-		elapsed += entry.Duration()
-	}
-
-	percent := elapsed.Seconds() / (store.GetHoursPerDayIncludingBreaks().Seconds() / 100)
-
-	return elapsed.String(), percent
-}
-
-func (c Clock) getRemainingTime() time.Duration {
-	var elapsed time.Duration
-
-	for _, entry := range store.GetEntries() {
-		elapsed += entry.Duration()
-	}
-
-	return time.Duration(store.GetHoursPerDayIncludingBreaks() - elapsed)
-
-}
-
 func (c Clock) getRemainingTimeAsString() string {
-	remaining := c.getRemainingTime() * -1
+	remaining := store.GetRemainingTime() * -1
 
 	if remaining < 0 {
 		return remaining.String()
@@ -185,7 +162,7 @@ func (c Clock) getRemainingTimeAsString() string {
 }
 
 func (c Clock) getEstimatedEndOfWorkday() time.Time {
-	remaining := c.getRemainingTime()
+	remaining := store.GetRemainingTime()
 	estimatedEndOfWorkday := time.Now().Add(remaining)
 	return estimatedEndOfWorkday
 }

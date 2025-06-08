@@ -188,6 +188,24 @@ func Strings() i18n.Strings {
 	}
 }
 
+func GetElapsedTime() time.Duration {
+	var elapsed time.Duration
+
+	for _, entry := range s.entries {
+		elapsed += entry.Duration()
+	}
+
+	return elapsed
+}
+
+func GetElapsedTimeAsPercent() float64 {
+	return GetElapsedTime().Seconds() / (GetHoursPerDayIncludingBreaks().Seconds() / 100)
+}
+
+func GetRemainingTime() time.Duration {
+	return time.Duration(GetHoursPerDayIncludingBreaks() - GetElapsedTime())
+}
+
 func IsClockedIn() bool {
 	if len(s.entries) == 0 {
 		return false
@@ -198,7 +216,14 @@ func IsClockedIn() bool {
 }
 
 func IsAtBreak() bool {
-	// FIXME: Calculation
+	elapsed := GetElapsedTime()
+
+	for _, b := range s.mandatoryBreaks {
+		if elapsed > b.After && elapsed < b.After+b.Duration {
+			return true
+		}
+	}
+
 	return false
 }
 
