@@ -193,6 +193,11 @@ func IsClockedIn() bool {
 	return current.End.IsZero()
 }
 
+func IsAtBreak() bool {
+	// FIXME: Calculation
+	return false
+}
+
 func saveAndSendStoreChangedMsg() tea.Msg {
 	saveToFile(s)
 

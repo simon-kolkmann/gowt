@@ -87,11 +87,9 @@ func (c Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 
 	case messages.ClockInMsg:
-		c.progress.FullColor = types.Theme.Success
 		cmds = append(cmds, store.AddEntry(msg.Entry))
 
 	case messages.ClockOutMsg:
-		c.progress.FullColor = types.Theme.Error
 		entries := store.GetEntries()
 		entries[len(entries)-1].End = time.Now()
 		cmds = append(cmds, store.SetEntries(entries))
@@ -123,6 +121,16 @@ func (c Clock) View() string {
 	hoursPerDayIncludingBreaks := store.GetHoursPerDayIncludingBreaks().String()
 	remainingTime := c.getRemainingTimeAsString()
 	estimatedEndOfWorkday := c.getEstimatedEndOfWorkdayAsString()
+
+	if store.IsClockedIn() {
+		c.progress.FullColor = types.Theme.Success
+	} else {
+		c.progress.FullColor = types.Theme.Error
+	}
+
+	if store.IsAtBreak() {
+		c.progress.FullColor = types.Theme.Warn
+	}
 
 	components := []string{}
 	components = append(components,

@@ -19,6 +19,7 @@ type Strings struct {
 	CURRENT_TIME             string
 	CLOCKED_IN               string
 	CLOCKED_OUT              string
+	AT_BREAK                 string
 	ESTIMATED_END_OF_WORKDAY string
 
 	VIEW_CAPTION_SETTINGS  string
@@ -58,6 +59,7 @@ var German Strings = Strings{
 	CURRENT_TIME:             "Es ist $time Uhr.",
 	CLOCKED_IN:               "Eingestempelt seit $time Uhr.",
 	CLOCKED_OUT:              "Derzeit nicht eingestempelt.",
+	AT_BREAK:                 "In Pause.",
 	ESTIMATED_END_OF_WORKDAY: "Voraussichtlicher Feierabend",
 
 	VIEW_CAPTION_SETTINGS:  "Einstellungen",
@@ -112,6 +114,7 @@ var English Strings = Strings{
 	CURRENT_TIME:             "It is $time.",
 	CLOCKED_IN:               "Clocked in since $time.",
 	CLOCKED_OUT:              "Currently not clocked in.",
+	AT_BREAK:                 "Having a break.",
 	ESTIMATED_END_OF_WORKDAY: "Estimated end of workday",
 
 	VIEW_CAPTION_SETTINGS:  "Settings",
