@@ -1,7 +1,7 @@
 package views
 
 import (
-	last_clock_in "gowt/bubbles/last-clock-in"
+	"gowt/bubbles/last_clock_in"
 	"gowt/bubbles/table"
 	"gowt/messages"
 	"gowt/store"
