@@ -124,12 +124,12 @@ func (c Clock) View() string {
 
 	if store.IsClockedIn() {
 		c.progress.FullColor = types.Theme.Success
+
+		if store.IsAtBreak() {
+			c.progress.FullColor = types.Theme.Warn
+		}
 	} else {
 		c.progress.FullColor = types.Theme.Error
-	}
-
-	if store.IsAtBreak() {
-		c.progress.FullColor = types.Theme.Warn
 	}
 
 	components := []string{}
