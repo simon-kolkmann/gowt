@@ -105,8 +105,7 @@ func (c Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	c.table, cmd = c.table.Update(msg)
 	cmds = append(cmds, cmd)
 
-	lastClockIn, cmd := c.lastClockIn.Update(msg)
-	c.lastClockIn = lastClockIn
+	c.lastClockIn, cmd = c.lastClockIn.Update(msg)
 	cmds = append(cmds, cmd)
 
 	// Return the updated model to the Bubble Tea runtime for processing.

@@ -34,17 +34,11 @@ func (e Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	cmds := make([]tea.Cmd, 3)
 
-	start, cmd := e.start.Update(msg)
-	if start, ok := start.(time_input.Model); ok {
-		e.start = start
-		cmds = append(cmds, cmd)
-	}
+	e.start, cmd = e.start.Update(msg)
+	cmds = append(cmds, cmd)
 
-	end, cmd := e.end.Update(msg)
-	if end, ok := end.(time_input.Model); ok {
-		e.end = end
-		cmds = append(cmds, cmd)
-	}
+	e.end, cmd = e.end.Update(msg)
+	cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
