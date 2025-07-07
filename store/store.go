@@ -162,8 +162,13 @@ func SetActiveEntry(v *types.Entry) tea.Cmd {
 
 // returns a copy of the active entry
 // do not update this copy - use UpdateActiveEntry instead.
-func GetActiveEntry() types.Entry {
-	return *s.activeEntry
+func GetActiveEntry() *types.Entry {
+	if s.activeEntry != nil {
+		copy := *s.activeEntry
+		return &copy
+	} else {
+		return nil
+	}
 }
 
 func UpdateActiveEntry(start, end time.Time) tea.Cmd {

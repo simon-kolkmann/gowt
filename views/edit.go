@@ -71,16 +71,14 @@ func (e Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			e.showMessage = true
 
 		case "ctrl+r":
-			entry := store.GetActiveEntry()
-			e.SetEntry(&entry)
+			e.SetEntry(store.GetActiveEntry())
 		}
 
 	case messages.ViewChangedMsg:
 		e.end.Input.Blur()
 		e.start.Input.CursorEnd()
 		cmds = append(cmds, e.start.Input.Focus())
-		entry := store.GetActiveEntry()
-		e.SetEntry(&entry)
+		e.SetEntry(store.GetActiveEntry())
 		e.showMessage = false
 	}
 
