@@ -1,6 +1,6 @@
-kind: pipeline
-type: kubernetes
-name: Release
+when:
+  - event: tag
+    branch: main
 
 steps:
   - name: release on codeberg
@@ -18,7 +18,3 @@ steps:
 
       - ./scripts/build.sh
       - ./scripts/publish.sh
-
-trigger:
-  event:
-    - tag
