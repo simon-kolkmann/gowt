@@ -12,6 +12,10 @@ steps:
     commands:
       - apt update && apt install -y jq
 
+      # we need to fetch the tags manually to use them in our build script
+      # https://docs.drone.io/pipeline/docker/syntax/cloning/
+      - git fetch --tags
+
       - ./scripts/build.sh
       - ./scripts/publish.sh
 
