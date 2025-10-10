@@ -132,13 +132,14 @@ func GetDailySetupTime() time.Duration {
 	return s.dailySetupTime
 }
 
-func SetLanguage(l i18n.Language) tea.Cmd {
-	s.language = l
-	return saveAndSendStoreChangedMsg
-}
+func ToggleLanguage() tea.Cmd {
+	if s.language == i18n.LANG_EN {
+		s.language = i18n.LANG_DE
+	} else {
+		s.language = i18n.LANG_EN
+	}
 
-func GetLanguage() i18n.Language {
-	return s.language
+	return saveAndSendStoreChangedMsg
 }
 
 func SetActiveView(v types.View) tea.Cmd {
@@ -179,18 +180,7 @@ func UpdateActiveEntry(start, end time.Time) tea.Cmd {
 }
 
 func Strings() i18n.Strings {
-	switch s.language {
-
-	case i18n.LANG_GERMAN:
-		return i18n.German
-
-	case i18n.LANG_ENGLISH:
-		return i18n.English
-
-	default:
-		return i18n.English
-
-	}
+	return i18n.GetStringsFor(s.language)
 }
 
 func GetElapsedTime() time.Duration {
@@ -267,7 +257,7 @@ func loadFromFileOrUseDefaults() {
 		s.hoursPerDay = time.Duration(time.Hour * 8)
 		s.dailySetupTime = time.Duration(0)
 		s.entries = make([]types.Entry, 0)
-		s.language = i18n.LANG_ENGLISH
+		s.language = i18n.LANG_EN
 	} else {
 		loadFromJson(file, &s)
 	}

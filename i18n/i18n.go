@@ -7,8 +7,8 @@ import (
 type Language string
 
 const (
-	LANG_GERMAN  Language = "ger"
-	LANG_ENGLISH Language = "eng"
+	LANG_DE Language = "de"
+	LANG_EN Language = "en"
 )
 
 type Strings struct {
@@ -51,112 +51,15 @@ type Strings struct {
 	HELP_RESET_KEY              string
 }
 
-var German Strings = Strings{
-	START:                    "Beginn",
-	END:                      "Ende",
-	DURATION:                 "Dauer",
-	SUM:                      "Saldo",
-	CURRENT_TIME:             "Es ist $time Uhr.",
-	CLOCKED_IN:               "Eingestempelt seit $time Uhr.",
-	CLOCKED_OUT:              "Derzeit nicht eingestempelt.",
-	AT_BREAK:                 "In Pause.",
-	ESTIMATED_END_OF_WORKDAY: "Voraussichtlicher Feierabend",
+func GetStringsFor(lang Language) Strings {
+	switch lang {
+	case LANG_DE:
+		return de
 
-	VIEW_CAPTION_SETTINGS:  "Einstellungen",
-	HOURS_PER_DAY_LABEL:    "tägliche Arbeitszeit",
-	DAILY_SETUP_TIME_LABEL: "tägliche Rüstzeit",
+	case LANG_EN:
+		return en
 
-	EDIT_ENTRY:         "Eintrag bearbeiten",
-	ENTRY_SAVE_SUCCESS: "Die Eingaben wurden gespeichert.",
-	ENTRY_SAVE_FAILED:  "Mindestens eine Eingabe ist fehlerhaft und kann nicht gespeichert werden.",
-	NO_ENTRY_SELECTED:  "Kein Eintrag ausgewählt.",
-
-	HELP_CLOCK_IN_OUT:  "ein- und ausstempeln",
-	HELP_QUIT:          "beenden",
-	HELP_QUIT_KEY:      "q/strg+c",
-	HELP_MOVE_UP:       "hoch",
-	HELP_MOVE_DOWN:     "runter",
-	HELP_NEXT_VIEW_KEY: "strg+rechts",
-	HELP_PREV_VIEW_KEY: "strg+links",
-	HELP_VIEW_NAME: func(v types.View) string {
-		switch v {
-		case types.ViewClock:
-			return "ansicht: uhr"
-
-		case types.ViewSettings:
-			return "ansicht: einstellungen"
-
-		case types.ViewEdit:
-			return "ansicht: bearbeiten"
-
-		default:
-			return "ansicht: n/a"
-
-		}
-	},
-	HELP_CHANGE_LANG:            "sprache wechseln",
-	HELP_CHANGE_LANG_KEY:        "strg+l",
-	HELP_DELETE_ENTRY:           "eintrag löschen",
-	HELP_DELETE_ENTRY_KEY:       "entf",
-	HELP_DELETE_ALL_ENTRIES:     "alle einträge löschen",
-	HELP_DELETE_ALL_ENTRIES_KEY: "alt+entf",
-	HELP_SUBMIT:                 "bestätigen",
-	HELP_SUBMIT_KEY:             "enter",
-	HELP_RESET:                  "zurücksetzen",
-	HELP_RESET_KEY:              "strg+r",
-}
-
-var English Strings = Strings{
-	START:                    "Start",
-	END:                      "End",
-	DURATION:                 "Duration",
-	SUM:                      "Sum",
-	CURRENT_TIME:             "It is $time.",
-	CLOCKED_IN:               "Clocked in since $time.",
-	CLOCKED_OUT:              "Currently not clocked in.",
-	AT_BREAK:                 "Having a break.",
-	ESTIMATED_END_OF_WORKDAY: "Estimated end of workday",
-
-	VIEW_CAPTION_SETTINGS:  "Settings",
-	HOURS_PER_DAY_LABEL:    "Daily work time",
-	DAILY_SETUP_TIME_LABEL: "Daily set-up time",
-
-	EDIT_ENTRY:         "Edit entry",
-	ENTRY_SAVE_SUCCESS: "Entry saved.",
-	ENTRY_SAVE_FAILED:  "At least one value is invalid and cannot be saved.",
-	NO_ENTRY_SELECTED:  "No entry selected.",
-
-	HELP_CLOCK_IN_OUT:  "clock in/out",
-	HELP_QUIT:          "quit",
-	HELP_QUIT_KEY:      "q/ctrl+c",
-	HELP_MOVE_UP:       "move up",
-	HELP_MOVE_DOWN:     "move down",
-	HELP_NEXT_VIEW_KEY: "ctrl+right",
-	HELP_PREV_VIEW_KEY: "ctrl+left",
-	HELP_VIEW_NAME: func(v types.View) string {
-		switch v {
-		case types.ViewClock:
-			return "view: clock"
-
-		case types.ViewSettings:
-			return "view: settings"
-
-		case types.ViewEdit:
-			return "view: edit"
-
-		default:
-			return "view: n/a"
-
-		}
-	},
-	HELP_CHANGE_LANG:            "change language",
-	HELP_CHANGE_LANG_KEY:        "ctrl+l",
-	HELP_DELETE_ENTRY:           "delete entry",
-	HELP_DELETE_ENTRY_KEY:       "del",
-	HELP_DELETE_ALL_ENTRIES:     "delete all entries",
-	HELP_DELETE_ALL_ENTRIES_KEY: "alt+del",
-	HELP_SUBMIT:                 "submit",
-	HELP_SUBMIT_KEY:             "enter",
-	HELP_RESET:                  "reset",
-	HELP_RESET_KEY:              "ctrl+r",
+	default:
+		return en
+	}
 }

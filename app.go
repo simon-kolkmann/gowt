@@ -2,7 +2,6 @@ package main
 
 import (
 	"gowt/bubbles/help"
-	"gowt/i18n"
 	"gowt/store"
 	"gowt/types"
 	"gowt/util"
@@ -57,11 +56,7 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return a, tea.Quit
 
 		case key.Matches(msg, util.Keys.CtrlL):
-			if store.GetLanguage() == i18n.LANG_ENGLISH {
-				cmds = append(cmds, store.SetLanguage(i18n.LANG_GERMAN))
-			} else {
-				cmds = append(cmds, store.SetLanguage(i18n.LANG_ENGLISH))
-			}
+			cmds = append(cmds, store.ToggleLanguage())
 
 		case key.Matches(msg, util.Keys.CtrlLeft):
 			if store.GetActiveView() > types.ViewSettings {
