@@ -1,4 +1,4 @@
-FROM golang:1.24.3
+FROM golang:1.24
 
 RUN apt update
 
@@ -9,4 +9,4 @@ useradd -m -u 1000 -s /bin/bash -g dev dev
 
 USER dev
 
-RUN go install github.com/oligot/go-mod-upgrade@latest
+RUN go install github.com/oligot/go-mod-upgrade@v0.11.0
