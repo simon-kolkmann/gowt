@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Creating release $DRONE_TAG"
+echo "Creating release $CI_COMMIT_TAG"
 
 # create release
 curl \
@@ -10,7 +10,7 @@ curl \
   -X POST \
   -H "Content-Type: application/json" \
   -H "Authorization: token $CODEBERG_TOKEN" \
-  --data "{\"tag_name\":\"$DRONE_TAG\",\"name\":\"$DRONE_TAG\",\"draft\":false}" \
+  --data "{\"tag_name\":\"$CI_COMMIT_TAG\",\"name\":\"$CI_COMMIT_TAG\",\"draft\":false}" \
   $CODEBERG_URL
 
 ASSET_UPLOAD_URL=$(cat response.json | jq -r .upload_url)
