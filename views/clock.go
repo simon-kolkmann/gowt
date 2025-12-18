@@ -18,15 +18,15 @@ import (
 	"github.com/google/uuid"
 )
 
-type Clock struct {
+type ViewClock struct {
 	now         string
 	progress    progress.Model
 	table       tea.Model
 	lastClockIn tea.Model
 }
 
-func NewClock() Clock {
-	return Clock{
+func NewClock() ViewClock {
+	return ViewClock{
 		progress: progress.New(
 			progress.WithSolidFill(types.Theme.Success),
 			progress.WithWidth(50),
@@ -54,11 +54,11 @@ func clockOut() tea.Msg {
 	return messages.ClockOutMsg{}
 }
 
-func (c Clock) Init() tea.Cmd {
+func (view ViewClock) Init() tea.Cmd {
 	return nil
 }
 
-func (c Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (view ViewClock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	cmds := make([]tea.Cmd, 0)
 
@@ -78,12 +78,12 @@ func (c Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case util.TimeTickMsg:
-		c.now = string(msg)
+		view.now = string(msg)
 
 	// FrameMsg is sent when the progress bar wants to animate itself
 	case progress.FrameMsg:
-		progressModel, cmd := c.progress.Update(msg)
-		c.progress = progressModel.(progress.Model)
+		progressModel, cmd := view.progress.Update(msg)
+		view.progress = progressModel.(progress.Model)
 		cmds = append(cmds, cmd)
 
 	case messages.ClockInMsg:
@@ -96,52 +96,52 @@ func (c Clock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case store.StoreChangedMsg:
 		if store.IsClockedIn() {
-			c.progress.FullColor = types.Theme.Success
+			view.progress.FullColor = types.Theme.Success
 		} else {
-			c.progress.FullColor = types.Theme.Error
+			view.progress.FullColor = types.Theme.Error
 		}
 	}
 
-	c.table, cmd = c.table.Update(msg)
+	view.table, cmd = view.table.Update(msg)
 	cmds = append(cmds, cmd)
 
-	c.lastClockIn, cmd = c.lastClockIn.Update(msg)
+	view.lastClockIn, cmd = view.lastClockIn.Update(msg)
 	cmds = append(cmds, cmd)
 
 	// Return the updated model to the Bubble Tea runtime for processing.
-	return c, tea.Batch(cmds...)
+	return view, tea.Batch(cmds...)
 }
 
-func (c Clock) View() string {
+func (view ViewClock) View() string {
 	row := lipgloss.NewStyle().Margin(0, 0, 1, 0).Render
 
 	elapsed := store.GetElapsedTime().String()
 	percent := store.GetElapsedTimeAsPercent()
 	hoursPerDayIncludingBreaks := store.GetHoursPerDayIncludingBreaks().String()
-	remainingTime := c.getRemainingTimeAsString()
-	estimatedEndOfWorkday := c.getEstimatedEndOfWorkdayAsString()
+	remainingTime := view.getRemainingTimeAsString()
+	estimatedEndOfWorkday := view.getEstimatedEndOfWorkdayAsString()
 
 	if store.IsClockedIn() {
-		c.progress.FullColor = types.Theme.Success
+		view.progress.FullColor = types.Theme.Success
 
 		if store.IsAtBreak() {
-			c.progress.FullColor = types.Theme.Warn
+			view.progress.FullColor = types.Theme.Warn
 		}
 	} else {
-		c.progress.FullColor = types.Theme.Error
+		view.progress.FullColor = types.Theme.Error
 	}
 
 	components := []string{}
 	components = append(components,
-		row(strings.Replace(store.Strings().CURRENT_TIME, "$time", c.now, 1)),
-		row(c.lastClockIn.View()),
-		row(c.progress.ViewAs(percent/100)),
+		row(strings.Replace(store.Strings().CURRENT_TIME, "$time", view.now, 1)),
+		row(view.lastClockIn.View()),
+		row(view.progress.ViewAs(percent/100)),
 		row(elapsed+" / "+hoursPerDayIncludingBreaks+" ("+remainingTime+", "+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
 		row(store.Strings().ESTIMATED_END_OF_WORKDAY+": "+estimatedEndOfWorkday),
 	)
 
 	if len(store.GetEntries()) > 0 {
-		components = append(components, row(c.table.View()))
+		components = append(components, row(view.table.View()))
 	}
 
 	return lipgloss.JoinVertical(
@@ -150,7 +150,7 @@ func (c Clock) View() string {
 	)
 }
 
-func (c Clock) getRemainingTimeAsString() string {
+func (view ViewClock) getRemainingTimeAsString() string {
 	remaining := store.GetRemainingTime() * -1
 
 	if remaining < 0 {
@@ -160,13 +160,13 @@ func (c Clock) getRemainingTimeAsString() string {
 	}
 }
 
-func (c Clock) getEstimatedEndOfWorkday() time.Time {
+func (view ViewClock) getEstimatedEndOfWorkday() time.Time {
 	remaining := store.GetRemainingTime()
 	estimatedEndOfWorkday := time.Now().Add(remaining)
 	return estimatedEndOfWorkday
 }
 
-func (c Clock) getEstimatedEndOfWorkdayAsString() string {
-	estimatedEndOfWorkday := c.getEstimatedEndOfWorkday()
+func (view ViewClock) getEstimatedEndOfWorkdayAsString() string {
+	estimatedEndOfWorkday := view.getEstimatedEndOfWorkday()
 	return estimatedEndOfWorkday.Format(time.TimeOnly)
 }

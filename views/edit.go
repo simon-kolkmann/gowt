@@ -11,7 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type Edit struct {
+type ViewEdit struct {
 	entry       *types.Entry
 	start       time_input.Model
 	end         time_input.Model
@@ -19,25 +19,25 @@ type Edit struct {
 	showMessage bool
 }
 
-func NewEdit() Edit {
-	return Edit{
+func NewEdit() ViewEdit {
+	return ViewEdit{
 		start: time_input.New(store.Strings().START + ": "),
 		end:   time_input.New(store.Strings().END + ": "),
 	}
 }
 
-func (e Edit) Init() tea.Cmd {
+func (view ViewEdit) Init() tea.Cmd {
 	return nil
 }
 
-func (e Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (view ViewEdit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	cmds := make([]tea.Cmd, 3)
 
-	e.start, cmd = e.start.Update(msg)
+	view.start, cmd = view.start.Update(msg)
 	cmds = append(cmds, cmd)
 
-	e.end, cmd = e.end.Update(msg)
+	view.end, cmd = view.end.Update(msg)
 	cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
@@ -45,7 +45,7 @@ func (e Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 
 		case "tab", "shift+tab":
-			e.focusNext()
+			view.focusNext()
 
 		case
 			"0",
@@ -62,35 +62,35 @@ func (e Edit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			"right",
 			"delete",
 			"backspace":
-			e.message = ""
-			e.showMessage = false
+			view.message = ""
+			view.showMessage = false
 
 		case "enter":
-			cmds = append(cmds, store.UpdateActiveEntry(e.start.Time, e.end.Time))
+			cmds = append(cmds, store.UpdateActiveEntry(view.start.Time, view.end.Time))
 
-			e.showMessage = true
+			view.showMessage = true
 
 		case "ctrl+r":
-			e.SetEntry(store.GetActiveEntry())
+			view.SetEntry(store.GetActiveEntry())
 		}
 
 	case messages.ViewChangedMsg:
-		e.end.Input.Blur()
-		e.start.Input.CursorEnd()
-		cmds = append(cmds, e.start.Input.Focus())
-		e.SetEntry(store.GetActiveEntry())
-		e.showMessage = false
+		view.end.Input.Blur()
+		view.start.Input.CursorEnd()
+		cmds = append(cmds, view.start.Input.Focus())
+		view.SetEntry(store.GetActiveEntry())
+		view.showMessage = false
 	}
 
-	return e, tea.Batch(cmds...)
+	return view, tea.Batch(cmds...)
 }
 
-func (e Edit) View() string {
-	if e.showMessage {
-		if e.hasError() {
-			e.message = "❌" + store.Strings().ENTRY_SAVE_FAILED
+func (view ViewEdit) View() string {
+	if view.showMessage {
+		if view.hasError() {
+			view.message = "❌" + store.Strings().ENTRY_SAVE_FAILED
 		} else {
-			e.message = store.Strings().ENTRY_SAVE_SUCCESS
+			view.message = store.Strings().ENTRY_SAVE_SUCCESS
 		}
 	}
 
@@ -103,13 +103,13 @@ func (e Edit) View() string {
 	caption := lipgloss.NewStyle().Bold(true).Underline(true)
 	message := lipgloss.NewStyle().Bold(true)
 
-	if e.hasError() {
+	if view.hasError() {
 		message = message.Foreground(lipgloss.Color(types.Theme.Error))
 	} else {
 		message = message.Foreground(lipgloss.Color(types.Theme.Success))
 	}
 
-	if e.entry == nil {
+	if view.entry == nil {
 		return box.Render(
 			lipgloss.JoinVertical(
 				lipgloss.Left,
@@ -125,47 +125,47 @@ func (e Edit) View() string {
 			caption.Render(store.Strings().EDIT_ENTRY+"\n"),
 			lipgloss.JoinHorizontal(
 				lipgloss.Center,
-				e.start.View(),
+				view.start.View(),
 				"   ",
-				e.end.View(),
+				view.end.View(),
 			),
 			"",
-			message.Render(e.message),
+			message.Render(view.message),
 		),
 	)
 }
 
-func (e *Edit) focusNext() {
-	if e.start.Input.Focused() {
-		e.start.Input.Blur()
-		e.end.Input.Focus()
+func (view *ViewEdit) focusNext() {
+	if view.start.Input.Focused() {
+		view.start.Input.Blur()
+		view.end.Input.Focus()
 	} else {
-		e.end.Input.Blur()
-		e.start.Input.Focus()
+		view.end.Input.Blur()
+		view.start.Input.Focus()
 	}
 }
 
-func (e *Edit) hasError() bool {
-	return e.start.Input.Err != nil || e.end.Input.Err != nil
+func (view *ViewEdit) hasError() bool {
+	return view.start.Input.Err != nil || view.end.Input.Err != nil
 }
 
-func (e *Edit) SetEntry(entry *types.Entry) {
+func (view *ViewEdit) SetEntry(entry *types.Entry) {
 	if entry == nil {
-		e.entry = nil
+		view.entry = nil
 		return
 	}
 
 	if entry.Start.IsZero() {
-		e.start.Input.SetValue("")
+		view.start.Input.SetValue("")
 	} else {
-		e.start.Input.SetValue(entry.Start.Format(time.TimeOnly))
+		view.start.Input.SetValue(entry.Start.Format(time.TimeOnly))
 	}
 
 	if entry.End.IsZero() {
-		e.end.Input.SetValue("")
+		view.end.Input.SetValue("")
 	} else {
-		e.end.Input.SetValue(entry.End.Format(time.TimeOnly))
+		view.end.Input.SetValue(entry.End.Format(time.TimeOnly))
 	}
 
-	e.entry = entry
+	view.entry = entry
 }

@@ -12,12 +12,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type Settings struct {
+type ViewSettings struct {
 	hoursPerDay    textinput.Model
 	dailySetupTime textinput.Model
 }
 
-func NewSettings() Settings {
+func NewSettings() ViewSettings {
 	hoursPerDay := textinput.New()
 	hoursPerDay.Placeholder = "1h23m4s"
 	hoursPerDay.CharLimit = 10
@@ -32,46 +32,46 @@ func NewSettings() Settings {
 	dailySetupTime.Prompt = store.Strings().DAILY_SETUP_TIME_LABEL + ":\n"
 	dailySetupTime.Validate = util.Validators.Time
 
-	return Settings{
+	return ViewSettings{
 		hoursPerDay:    hoursPerDay,
 		dailySetupTime: dailySetupTime,
 	}
 }
 
-func (s Settings) Init() tea.Cmd {
-	return s.hoursPerDay.Cursor.BlinkCmd()
+func (view ViewSettings) Init() tea.Cmd {
+	return view.hoursPerDay.Cursor.BlinkCmd()
 }
 
-func (s Settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (view ViewSettings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	cmds := make([]tea.Cmd, 0)
 
-	s.hoursPerDay, cmd = s.hoursPerDay.Update(msg)
+	view.hoursPerDay, cmd = view.hoursPerDay.Update(msg)
 	cmds = append(cmds, cmd)
 
-	s.dailySetupTime, cmd = s.dailySetupTime.Update(msg)
+	view.dailySetupTime, cmd = view.dailySetupTime.Update(msg)
 	cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, util.Keys.Tab, util.Keys.ShiftTab):
-			s.toggleFocus()
+			view.toggleFocus()
 		default:
-			return s, s.saveSettingsIfValid()
+			return view, view.saveSettingsIfValid()
 		}
 
 	case messages.ViewChangedMsg:
-		s.hoursPerDay.SetValue(store.GetHoursPerDay().String())
-		s.dailySetupTime.SetValue(store.GetDailySetupTime().String())
+		view.hoursPerDay.SetValue(store.GetHoursPerDay().String())
+		view.dailySetupTime.SetValue(store.GetDailySetupTime().String())
 
-		s.hoursPerDay.CursorEnd()
+		view.hoursPerDay.CursorEnd()
 	}
 
-	return s, tea.Batch(cmds...)
+	return view, tea.Batch(cmds...)
 }
 
-func (s Settings) View() string {
+func (view ViewSettings) View() string {
 	box := lipgloss.
 		NewStyle().Align(lipgloss.Center).
 		Padding(1, 2, 2, 2).
@@ -82,34 +82,34 @@ func (s Settings) View() string {
 		lipgloss.JoinVertical(
 			lipgloss.Left,
 			store.Strings().VIEW_CAPTION_SETTINGS+"\n",
-			s.hoursPerDay.View()+"\n",
-			s.dailySetupTime.View()+"\n",
+			view.hoursPerDay.View()+"\n",
+			view.dailySetupTime.View()+"\n",
 		),
 	)
 }
 
-func (s *Settings) saveSettingsIfValid() tea.Cmd {
+func (view *ViewSettings) saveSettingsIfValid() tea.Cmd {
 	cmds := make([]tea.Cmd, 0)
 
-	if s.hoursPerDay.Err != nil {
-		hoursPerDay, _ := time.ParseDuration(s.hoursPerDay.Value())
+	if view.hoursPerDay.Err != nil {
+		hoursPerDay, _ := time.ParseDuration(view.hoursPerDay.Value())
 		cmds = append(cmds, store.SetHoursPerDay(hoursPerDay))
 	}
 
-	if s.dailySetupTime.Err != nil {
-		dailySetupTime, _ := time.ParseDuration(s.dailySetupTime.Value())
+	if view.dailySetupTime.Err != nil {
+		dailySetupTime, _ := time.ParseDuration(view.dailySetupTime.Value())
 		cmds = append(cmds, store.SetDailySetupTime(dailySetupTime))
 	}
 
 	return tea.Batch(cmds...)
 }
 
-func (s *Settings) toggleFocus() {
-	if s.hoursPerDay.Focused() {
-		s.hoursPerDay.Blur()
-		s.dailySetupTime.Focus()
+func (view *ViewSettings) toggleFocus() {
+	if view.hoursPerDay.Focused() {
+		view.hoursPerDay.Blur()
+		view.dailySetupTime.Focus()
 	} else {
-		s.dailySetupTime.Blur()
-		s.hoursPerDay.Focus()
+		view.dailySetupTime.Blur()
+		view.hoursPerDay.Focus()
 	}
 }
