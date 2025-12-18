@@ -10,3 +10,4 @@ useradd -m -u 1000 -s /bin/bash -g dev dev
 USER dev
 
 RUN go install github.com/oligot/go-mod-upgrade@v0.11.0
+RUN go install github.com/go-delve/delve/cmd/dlv@v1.25
