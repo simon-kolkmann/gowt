@@ -66,8 +66,9 @@ func (view ViewEdit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			view.showMessage = false
 
 		case "enter":
-			cmds = append(cmds, store.UpdateActiveEntry(view.start.Time, view.end.Time))
-
+			start := view.start.GetTime()
+			end := view.end.GetTime()
+			cmds = append(cmds, store.UpdateActiveEntry(start, end))
 			view.showMessage = true
 
 		case "ctrl+r":

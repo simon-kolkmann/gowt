@@ -10,7 +10,6 @@ import (
 )
 
 type Model struct {
-	Time  time.Time
 	Input textinput.Model
 }
 
@@ -50,20 +49,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			if m.Input.Err != nil || value == "" {
 				break
 			}
-
-			now := time.Now()
-			t, _ := time.Parse(time.TimeOnly, value)
-
-			m.Time = time.Date(
-				now.Year(),
-				now.Month(),
-				now.Day(),
-				t.Hour(),
-				t.Minute(),
-				t.Second(),
-				0,
-				now.Location(),
-			)
 		}
 	}
 
@@ -72,6 +57,28 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	return m.Input.View()
+}
+
+func (m Model) GetTime() time.Time {
+	v := m.Input.Value()
+
+	if v == "" {
+		return time.Time{}
+	}
+
+	now := time.Now()
+	t, _ := time.Parse(time.TimeOnly, v)
+
+	return time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		t.Hour(),
+		t.Minute(),
+		t.Second(),
+		0,
+		now.Location(),
+	)
 }
 
 func (m *Model) autoFormatValue(msg tea.KeyMsg) {
