@@ -3,37 +3,32 @@ package views
 import (
 	"gowt/bubbles/last_clock_in"
 	"gowt/bubbles/table"
+	"gowt/bubbles/time_progress"
 	"gowt/messages"
 	"gowt/store"
 	"gowt/types"
 	"gowt/util"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/google/uuid"
 )
 
 type ViewClock struct {
-	now         string
-	progress    progress.Model
-	table       tea.Model
-	lastClockIn tea.Model
+	now          string
+	progressWork time_progress.Model
+	table        tea.Model
+	lastClockIn  tea.Model
 }
 
 func NewClock() ViewClock {
 	return ViewClock{
-		progress: progress.New(
-			progress.WithSolidFill(types.Theme.Success),
-			progress.WithWidth(50),
-			progress.WithoutPercentage(),
-		),
-		table:       table.NewTable(),
-		lastClockIn: last_clock_in.NewLastClockIn(),
+		progressWork: time_progress.NewTimeProgress(),
+		table:        table.NewTable(),
+		lastClockIn:  last_clock_in.NewLastClockIn(),
 	}
 }
 
@@ -104,12 +99,6 @@ func (view ViewClock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case util.TimeTickMsg:
 		view.now = string(msg)
 
-	// FrameMsg is sent when the progress bar wants to animate itself
-	case progress.FrameMsg:
-		progressModel, cmd := view.progress.Update(msg)
-		view.progress = progressModel.(progress.Model)
-		cmds = append(cmds, cmd)
-
 	case messages.ClockInMsg:
 		if store.LastEntry() != nil && store.LastEntry().End.IsZero() {
 			store.LastEntry().End = time.Now()
@@ -148,26 +137,24 @@ func (view ViewClock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (view ViewClock) View() string {
 	row := lipgloss.NewStyle().Margin(0, 0, 1, 0).Render
 
-	elapsed := store.GetElapsedWorkTime().String()
-	percent := store.GetElapsedWorkTimeInPercent()
-	hoursPerDay := store.GetHoursPerDay().String()
-	remainingTime := view.getRemainingTimeAsString()
 	estimatedEndOfWorkday := view.getEstimatedEndOfWorkdayAsString()
 
 	if store.IsClockedIn() {
-		view.progress.FullColor = types.Theme.Success
+		view.progressWork.Color = types.Theme.Success
 	} else if store.IsAtBreak() {
-		view.progress.FullColor = types.Theme.Warn
+		view.progressWork.Color = types.Theme.Warn
 	} else {
-		view.progress.FullColor = types.Theme.Error
+		view.progressWork.Color = types.Theme.Error
 	}
+
+	view.progressWork.Elapsed = store.GetElapsedWorkTime()
+	view.progressWork.Target = store.GetHoursPerDay()
 
 	components := []string{}
 	components = append(components,
 		row(strings.Replace(store.Strings().CURRENT_TIME, "$time", view.now, 1)),
 		row(view.lastClockIn.View()),
-		row(view.progress.ViewAs(percent/100)),
-		row(elapsed+" / "+hoursPerDay+" ("+remainingTime+", "+strconv.FormatFloat(percent, 'f', 2, 64)+"%)"),
+		row(view.progressWork.View()),
 		row(store.Strings().ESTIMATED_END_OF_WORKDAY+": "+estimatedEndOfWorkday),
 	)
 

@@ -203,10 +203,6 @@ func GetElapsedWorkTime() time.Duration {
 	return elapsed
 }
 
-func GetElapsedWorkTimeInPercent() float64 {
-	return GetElapsedWorkTime().Seconds() / (s.hoursPerDay.Seconds() / 100)
-}
-
 func GetRemainingWorkTime() time.Duration {
 	return time.Duration(s.hoursPerDay - GetElapsedWorkTime())
 }
