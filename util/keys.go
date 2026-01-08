@@ -15,6 +15,7 @@ type KeyMap struct {
 	CtrlLeft  key.Binding
 	CtrlRight key.Binding
 	Enter     key.Binding
+	AltEnter  key.Binding
 	Quit      key.Binding
 	CtrlL     key.Binding
 	CtrlR     key.Binding
@@ -30,6 +31,7 @@ var Keys KeyMap = KeyMap{
 	CtrlLeft:  key.NewBinding(key.WithKeys("ctrl+left")),
 	CtrlRight: key.NewBinding(key.WithKeys("ctrl+right")),
 	Enter:     key.NewBinding(key.WithKeys("enter")),
+	AltEnter:  key.NewBinding(key.WithKeys("alt+enter")),
 	Quit:      key.NewBinding(key.WithKeys("q"), key.WithKeys("ctrl+c")),
 	CtrlL:     key.NewBinding(key.WithKeys("ctrl+l")),
 	CtrlR:     key.NewBinding(key.WithKeys("ctrl+r")),
@@ -44,6 +46,7 @@ var Keys KeyMap = KeyMap{
 func (k KeyMap) FullHelp(view types.View, strings i18n.Strings) [][]key.Binding {
 	Keys.Up.SetHelp("↑", strings.HELP_MOVE_UP)
 	Keys.Down.SetHelp("↓", strings.HELP_MOVE_DOWN)
+	Keys.AltEnter.SetHelp(strings.HELP_BREAK_KEY, strings.HELP_BREAK)
 	Keys.Quit.SetHelp(strings.HELP_QUIT_KEY, strings.HELP_QUIT)
 	Keys.CtrlL.SetHelp(strings.HELP_CHANGE_LANG_KEY, strings.HELP_CHANGE_LANG)
 	Keys.CtrlR.SetHelp(strings.HELP_RESET_KEY, strings.HELP_RESET)
@@ -57,8 +60,8 @@ func (k KeyMap) FullHelp(view types.View, strings i18n.Strings) [][]key.Binding 
 		Keys.CtrlLeft.SetHelp(strings.HELP_PREV_VIEW_KEY, strings.HELP_VIEW_NAME(types.ViewSettings))
 		Keys.CtrlRight.SetHelp(strings.HELP_NEXT_VIEW_KEY, strings.HELP_VIEW_NAME(types.ViewEdit))
 		return [][]key.Binding{
-			{k.CtrlLeft, k.CtrlRight, k.CtrlL, k.Quit},     // first column
-			{k.Enter, k.Delete, k.AltDelete, k.Up, k.Down}, // second column
+			{k.CtrlLeft, k.CtrlRight, k.CtrlL, k.Quit},                 // first column
+			{k.Enter, k.AltEnter, k.Delete, k.AltDelete, k.Up, k.Down}, // second column
 		}
 
 	case types.ViewSettings:

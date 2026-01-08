@@ -3,6 +3,7 @@ package i18n
 import "gowt/types"
 
 var en Strings = Strings{
+	KIND:                     "Kind",
 	START:                    "Start",
 	END:                      "End",
 	DURATION:                 "Duration",
@@ -12,6 +13,9 @@ var en Strings = Strings{
 	CLOCKED_OUT:              "Currently not clocked in.",
 	AT_BREAK:                 "Having a break.",
 	ESTIMATED_END_OF_WORKDAY: "Estimated end of workday",
+
+	ENTRY_KIND_BREAK: "Break",
+	ENTRY_KIND_WORK:  "Work",
 
 	VIEW_CAPTION_SETTINGS:  "Settings",
 	HOURS_PER_DAY_LABEL:    "Daily work time",
@@ -23,6 +27,7 @@ var en Strings = Strings{
 	NO_ENTRY_SELECTED:  "No entry selected.",
 
 	HELP_CLOCK_IN_OUT:  "clock in/out",
+	HELP_BREAK:         "start/end break",
 	HELP_QUIT:          "quit",
 	HELP_QUIT_KEY:      "q/ctrl+c",
 	HELP_MOVE_UP:       "move up",
@@ -55,4 +60,5 @@ var en Strings = Strings{
 	HELP_SUBMIT_KEY:             "enter",
 	HELP_RESET:                  "reset",
 	HELP_RESET_KEY:              "ctrl+r",
+	HELP_BREAK_KEY:              "alt+enter",
 }

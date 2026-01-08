@@ -124,6 +124,7 @@ func (view ViewEdit) View() string {
 		lipgloss.JoinVertical(
 			lipgloss.Left,
 			caption.Render(store.Strings().EDIT_ENTRY+"\n"),
+			store.Strings().KIND+": "+store.KindAsString(view.entry.Kind),
 			lipgloss.JoinHorizontal(
 				lipgloss.Center,
 				view.start.View(),

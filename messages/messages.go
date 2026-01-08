@@ -12,4 +12,12 @@ type ClockOutMsg struct {
 	Entry types.Entry
 }
 
+type StartBreakMsg struct {
+	Entry types.Entry
+}
+
+type EndBreakMsg struct {
+	Entry types.Entry
+}
+
 type ViewChangedMsg types.View

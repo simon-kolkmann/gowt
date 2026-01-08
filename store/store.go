@@ -20,7 +20,6 @@ type store struct {
 	date           time.Time
 	hoursPerDay    time.Duration
 	dailySetupTime time.Duration
-	breaks         []types.Break
 	entries        []types.Entry
 	language       i18n.Language
 }
@@ -59,21 +58,26 @@ func Init() tea.Cmd {
 // If the user is currently clocked out, a zeroed
 // time will be returned.
 func LastClockIn() time.Time {
-	hasNoEntries := len(GetEntries()) == 0
+	entries := GetEntries()
 
-	if hasNoEntries {
-		return time.Time{}
+	for i := len(entries) - 1; i >= 0; i-- {
+		entry := entries[i]
+
+		if entry.Kind == types.EntryKindBreak {
+			continue
+		}
+
+		if entry.End.IsZero() {
+			// currently clocked in
+			return entry.Start
+		} else {
+			// currently clocked out
+			return time.Time{}
+		}
 	}
 
-	mostRecentEntry := GetEntries()[len(GetEntries())-1]
-
-	if mostRecentEntry.End.IsZero() {
-		// currently clocked in
-		return mostRecentEntry.Start
-	} else {
-		// currently clocked out
-		return time.Time{}
-	}
+	// no entries
+	return time.Time{}
 }
 
 func SetEntries(entries []types.Entry) tea.Cmd {
@@ -107,16 +111,12 @@ func GetHoursPerDay() time.Duration {
 	return s.hoursPerDay
 }
 
-func GetHoursPerDayIncludingBreaks() time.Duration {
-	return s.hoursPerDay + GetTotalBreakTime()
-}
-
 func GetTotalBreakTime() time.Duration {
 	var total time.Duration
 
-	for _, b := range s.breaks {
-		if s.hoursPerDay > b.After {
-			total += b.Duration
+	for _, entry := range s.entries {
+		if entry.Kind == types.EntryKindBreak {
+			total += entry.Duration()
 		}
 	}
 
@@ -183,22 +183,24 @@ func Strings() i18n.Strings {
 	return i18n.GetStringsFor(s.language)
 }
 
-func GetElapsedTime() time.Duration {
+func GetElapsedWorkTime() time.Duration {
 	var elapsed time.Duration
 
 	for _, entry := range s.entries {
-		elapsed += entry.Duration()
+		if entry.Kind == types.EntryKindWork {
+			elapsed += entry.Duration()
+		}
 	}
 
 	return elapsed
 }
 
-func GetElapsedTimeAsPercent() float64 {
-	return GetElapsedTime().Seconds() / (GetHoursPerDayIncludingBreaks().Seconds() / 100)
+func GetElapsedWorkTimeInPercent() float64 {
+	return GetElapsedWorkTime().Seconds() / (s.hoursPerDay.Seconds() / 100)
 }
 
-func GetRemainingTime() time.Duration {
-	return time.Duration(GetHoursPerDayIncludingBreaks() - GetElapsedTime())
+func GetRemainingWorkTime() time.Duration {
+	return time.Duration(s.hoursPerDay - GetElapsedWorkTime())
 }
 
 func IsClockedIn() bool {
@@ -207,19 +209,29 @@ func IsClockedIn() bool {
 	}
 
 	current := s.entries[len(s.entries)-1]
-	return current.End.IsZero()
+
+	return current.Kind == types.EntryKindWork && current.End.IsZero()
 }
 
 func IsAtBreak() bool {
-	elapsed := GetElapsedTime()
-
-	for _, b := range s.breaks {
-		if elapsed > b.After && elapsed < b.After+b.Duration {
-			return true
-		}
+	if len(s.entries) == 0 {
+		return false
 	}
 
-	return false
+	current := s.entries[len(s.entries)-1]
+
+	return current.Kind == types.EntryKindBreak && current.End.IsZero()
+}
+
+func KindAsString(kind types.EntryKind) string {
+	switch kind {
+	case types.EntryKindWork:
+		return Strings().ENTRY_KIND_WORK
+	case types.EntryKindBreak:
+		return Strings().ENTRY_KIND_BREAK
+	default:
+		return "n/a"
+	}
 }
 
 func saveAndSendStoreChangedMsg() tea.Msg {
@@ -238,19 +250,6 @@ func getFilePath() string {
 
 func loadFromFileOrUseDefaults() {
 	file, err := os.ReadFile(getFilePath())
-
-	// TODO: settings ui / persist / empty default
-	s.breaks = make([]types.Break, 0)
-	s.breaks = append(
-		s.breaks,
-		types.Break{
-			After:    time.Duration(time.Hour * 6),
-			Duration: time.Duration(time.Minute * 30),
-		}, types.Break{
-			After:    time.Duration(time.Hour*9 + time.Minute*30),
-			Duration: time.Duration(time.Minute * 15),
-		},
-	)
 
 	if err != nil {
 		s.date = time.Now()

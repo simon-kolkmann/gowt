@@ -12,6 +12,7 @@ const (
 )
 
 type Strings struct {
+	KIND                     string
 	START                    string
 	END                      string
 	DURATION                 string
@@ -21,6 +22,9 @@ type Strings struct {
 	CLOCKED_OUT              string
 	AT_BREAK                 string
 	ESTIMATED_END_OF_WORKDAY string
+
+	ENTRY_KIND_BREAK string
+	ENTRY_KIND_WORK  string
 
 	VIEW_CAPTION_SETTINGS  string
 	HOURS_PER_DAY_LABEL    string
@@ -32,6 +36,7 @@ type Strings struct {
 	NO_ENTRY_SELECTED  string
 
 	HELP_CLOCK_IN_OUT           string
+	HELP_BREAK                  string
 	HELP_QUIT                   string
 	HELP_QUIT_KEY               string
 	HELP_MOVE_UP                string
@@ -49,6 +54,7 @@ type Strings struct {
 	HELP_SUBMIT_KEY             string
 	HELP_RESET                  string
 	HELP_RESET_KEY              string
+	HELP_BREAK_KEY              string
 }
 
 func GetStringsFor(lang Language) Strings {

@@ -3,6 +3,7 @@ package i18n
 import "gowt/types"
 
 var de Strings = Strings{
+	KIND:                     "Typ",
 	START:                    "Beginn",
 	END:                      "Ende",
 	DURATION:                 "Dauer",
@@ -12,6 +13,9 @@ var de Strings = Strings{
 	CLOCKED_OUT:              "Derzeit nicht eingestempelt.",
 	AT_BREAK:                 "In Pause.",
 	ESTIMATED_END_OF_WORKDAY: "Voraussichtlicher Feierabend",
+
+	ENTRY_KIND_BREAK: "Pause",
+	ENTRY_KIND_WORK:  "Arbeit",
 
 	VIEW_CAPTION_SETTINGS:  "Einstellungen",
 	HOURS_PER_DAY_LABEL:    "tägliche Arbeitszeit",
@@ -23,6 +27,7 @@ var de Strings = Strings{
 	NO_ENTRY_SELECTED:  "Kein Eintrag ausgewählt.",
 
 	HELP_CLOCK_IN_OUT:  "ein- und ausstempeln",
+	HELP_BREAK:         "pause starten/beenden",
 	HELP_QUIT:          "beenden",
 	HELP_QUIT_KEY:      "q/strg+c",
 	HELP_MOVE_UP:       "hoch",
@@ -55,4 +60,5 @@ var de Strings = Strings{
 	HELP_SUBMIT_KEY:             "enter",
 	HELP_RESET:                  "zurücksetzen",
 	HELP_RESET_KEY:              "strg+r",
+	HELP_BREAK_KEY:              "alt+enter",
 }

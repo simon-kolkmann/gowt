@@ -5,7 +5,6 @@ import (
 	"gowt/store"
 	"gowt/types"
 	"gowt/util"
-	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
@@ -29,6 +28,7 @@ func NewTable() Model {
 
 func createTable() table.Model {
 	columns := []table.Column{
+		{Title: store.Strings().KIND, Width: 10},
 		{Title: store.Strings().START, Width: 10},
 		{Title: store.Strings().END, Width: 10},
 		{Title: store.Strings().DURATION, Width: 10},
@@ -114,39 +114,42 @@ func (m Model) View() string {
 func (m *Model) calculateTableRows() {
 	rows := make([]table.Row, 0)
 
-	totalWorkTime := time.Time{}
-
-	// calculate total work time (all entries)
-	for _, entry := range m.entries {
-		totalWorkTime = totalWorkTime.Add(entry.Duration())
-	}
+	totalWorkTime := store.GetElapsedWorkTime()
 
 	for i := len(m.entries) - 1; i >= 0; i-- {
 		entry := m.entries[i]
 
-		if entry.End.IsZero() {
-			rows = append(rows, table.Row{
-				entry.Start.Format(time.TimeOnly),
-				"-",
-				entry.Duration().String(),
-				totalWorkTime.Format(time.TimeOnly),
-			})
-		} else {
-			rows = append(rows, table.Row{
-				entry.Start.Format(time.TimeOnly),
-				entry.End.Format(time.TimeOnly),
-				entry.Duration().String(),
-				totalWorkTime.Format(time.TimeOnly),
-			})
+		var kind string
+		var start string
+		var end string
+		var duration string
+		var sum string
+
+		kind = store.KindAsString(entry.Kind)
+		start, end, duration = entry.ToString()
+		sum = totalWorkTime.String()
+
+		if entry.Kind == types.EntryKindBreak {
+			sum = "-"
 		}
 
-		totalWorkTime = totalWorkTime.Add(entry.Duration() * -1)
+		rows = append(rows, table.Row{
+			kind,
+			start,
+			end,
+			duration,
+			sum,
+		})
+
+		if entry.Kind == types.EntryKindWork {
+			totalWorkTime = totalWorkTime + entry.Duration()*-1
+		}
 
 	}
 
 	m.table.SetRows(rows)
 
-	const MAX_ROWS = 5
+	const MAX_ROWS = 10
 
 	if len(rows) > MAX_ROWS {
 		m.table.SetHeight(MAX_ROWS + 2)

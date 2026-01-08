@@ -48,19 +48,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	style := lipgloss.NewStyle().Bold(true)
 
-	if m.lastClockIn.IsZero() {
+	if store.IsClockedIn() {
+		template := store.Strings().CLOCKED_IN
+		lastClockIn := m.lastClockIn.Format(time.TimeOnly)
+		s := strings.Replace(template, "$time", lastClockIn, 1)
+		return style.Foreground(lipgloss.Color(types.Theme.Success)).Render(s)
+	} else if store.IsAtBreak() {
+		s := store.Strings().AT_BREAK
+		return style.Foreground(lipgloss.Color(types.Theme.Warn)).Render(s)
+	} else {
 		s := store.Strings().CLOCKED_OUT
 		return style.Foreground(lipgloss.Color(types.Theme.Error)).Render(s)
 	}
-
-	if store.IsAtBreak() {
-		s := store.Strings().AT_BREAK
-		return style.Foreground(lipgloss.Color(types.Theme.Warn)).Render(s)
-	}
-
-	template := store.Strings().CLOCKED_IN
-	lastClockIn := m.lastClockIn.Format(time.TimeOnly)
-	s := strings.Replace(template, "$time", lastClockIn, 1)
-
-	return style.Foreground(lipgloss.Color(types.Theme.Success)).Render(s)
 }
