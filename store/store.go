@@ -96,6 +96,14 @@ func GetEntries() []types.Entry {
 	return s.entries
 }
 
+func LastEntry() *types.Entry {
+	if len(s.entries) > 0 {
+		return &s.entries[len(s.entries)-1]
+	} else {
+		return nil
+	}
+}
+
 func AddEntry(entry types.Entry) tea.Cmd {
 	s.entries = append(s.entries, entry)
 	SetActiveEntry(&s.entries[len(s.entries)-1])

@@ -111,9 +111,8 @@ func (view ViewClock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 
 	case messages.ClockInMsg:
-		active := store.GetActiveEntry()
-		if active != nil {
-			store.UpdateActiveEntry(active.Start, time.Now())
+		if store.LastEntry() != nil && store.LastEntry().End.IsZero() {
+			store.LastEntry().End = time.Now()
 		}
 
 		cmds = append(cmds, store.AddEntry(msg.Entry))
@@ -124,9 +123,8 @@ func (view ViewClock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, store.SetEntries(entries))
 
 	case messages.StartBreakMsg:
-		active := store.GetActiveEntry()
-		if active != nil {
-			store.UpdateActiveEntry(active.Start, time.Now())
+		if store.LastEntry() != nil && store.LastEntry().End.IsZero() {
+			store.LastEntry().End = time.Now()
 		}
 
 		cmds = append(cmds, store.AddEntry(msg.Entry))
