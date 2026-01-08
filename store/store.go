@@ -21,6 +21,7 @@ type store struct {
 	hoursPerDay    time.Duration
 	dailySetupTime time.Duration
 	entries        []types.Entry
+	breaks         []types.MandatoryBreak
 	language       i18n.Language
 }
 
@@ -131,6 +132,19 @@ func GetTotalBreakTime() time.Duration {
 	return total
 }
 
+func GetMandatoryBreakTime() time.Duration {
+	var total time.Duration
+	elapsed := GetElapsedWorkTime()
+
+	for _, b := range s.breaks {
+		if elapsed >= b.After {
+			total += b.Duration
+		}
+	}
+
+	return total
+}
+
 func SetDailySetupTime(dailySetupTime time.Duration) tea.Cmd {
 	s.dailySetupTime = dailySetupTime
 	return saveAndSendStoreChangedMsg
@@ -192,10 +206,18 @@ func Strings() i18n.Strings {
 }
 
 func GetElapsedWorkTime() time.Duration {
+	return getElapsedTimeFor(types.EntryKindWork)
+}
+
+func GetElapsedBreakTime() time.Duration {
+	return getElapsedTimeFor(types.EntryKindBreak)
+}
+
+func getElapsedTimeFor(kind types.EntryKind) time.Duration {
 	var elapsed time.Duration
 
 	for _, entry := range s.entries {
-		if entry.Kind == types.EntryKindWork {
+		if entry.Kind == kind {
 			elapsed += entry.Duration()
 		}
 	}
@@ -205,6 +227,10 @@ func GetElapsedWorkTime() time.Duration {
 
 func GetRemainingWorkTime() time.Duration {
 	return time.Duration(s.hoursPerDay - GetElapsedWorkTime())
+}
+
+func GetRemainingBreakTime() time.Duration {
+	return time.Duration(GetMandatoryBreakTime() - GetElapsedBreakTime())
 }
 
 func IsClockedIn() bool {
@@ -254,6 +280,19 @@ func getFilePath() string {
 
 func loadFromFileOrUseDefaults() {
 	file, err := os.ReadFile(getFilePath())
+
+	// TODO: settings ui / persist / empty default
+	s.breaks = make([]types.MandatoryBreak, 0)
+	s.breaks = append(
+		s.breaks,
+		types.MandatoryBreak{
+			After:    time.Duration(time.Second * 6),
+			Duration: time.Duration(time.Minute * 1),
+		}, types.MandatoryBreak{
+			After:    time.Duration(time.Hour * 9),
+			Duration: time.Duration(time.Minute * 15),
+		},
+	)
 
 	if err != nil {
 		s.date = time.Now()

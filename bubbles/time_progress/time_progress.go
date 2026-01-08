@@ -12,38 +12,20 @@ import (
 
 type Model struct {
 	progress progress.Model
-	label    string
+	Label    string
 	Elapsed  time.Duration
 	Target   time.Duration
 	Color    string
 }
 
-type Option func(*Model)
-
-func WithLabel(label string) Option {
-	return func(m *Model) {
-		m.setLabel(label)
-	}
-}
-
-func NewTimeProgress(opts ...Option) Model {
-	m := Model{
+func NewTimeProgress() Model {
+	return Model{
 		progress: progress.New(
 			progress.WithSolidFill(types.Theme.Success),
 			progress.WithWidth(50),
 			progress.WithoutPercentage(),
 		),
 	}
-
-	for _, opt := range opts {
-		opt(&m)
-	}
-
-	return m
-}
-
-func (m *Model) setLabel(label string) {
-	m.label = label
 }
 
 func (m Model) Init() tea.Cmd {
@@ -67,7 +49,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	row := lipgloss.NewStyle().Margin(0, 0, 1, 0).Render
+	if m.Target == 0 {
+		return ""
+	}
+
+	row := lipgloss.NewStyle().Margin(0, 0, 0, 0).Render
 
 	elapsed := m.Elapsed.String()
 	target := m.Target.String()
@@ -79,8 +65,8 @@ func (m Model) View() string {
 
 	components := []string{}
 
-	if m.label != "" {
-		components = append(components, row(m.label))
+	if m.Label != "" {
+		components = append(components, row(m.Label))
 	}
 
 	components = append(components,
@@ -88,7 +74,7 @@ func (m Model) View() string {
 		row(elapsed+" / "+target+" ("+remaining+", "+percentAsString+")"))
 
 	return lipgloss.JoinVertical(
-		lipgloss.Center,
+		lipgloss.Left,
 		components...,
 	)
 }

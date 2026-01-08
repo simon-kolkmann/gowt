@@ -35,6 +35,9 @@ type Strings struct {
 	ENTRY_SAVE_FAILED  string
 	NO_ENTRY_SELECTED  string
 
+	WORKTIME  string
+	BREAKTIME string
+
 	HELP_CLOCK_IN_OUT           string
 	HELP_BREAK                  string
 	HELP_QUIT                   string

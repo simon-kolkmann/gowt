@@ -26,6 +26,9 @@ var en Strings = Strings{
 	ENTRY_SAVE_FAILED:  "At least one value is invalid and cannot be saved.",
 	NO_ENTRY_SELECTED:  "No entry selected.",
 
+	WORKTIME:  "Work time",
+	BREAKTIME: "Break time",
+
 	HELP_CLOCK_IN_OUT:  "clock in/out",
 	HELP_BREAK:         "start/end break",
 	HELP_QUIT:          "quit",

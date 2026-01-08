@@ -18,17 +18,19 @@ import (
 )
 
 type ViewClock struct {
-	now          string
-	progressWork time_progress.Model
-	table        tea.Model
-	lastClockIn  tea.Model
+	now            string
+	progressWork   time_progress.Model
+	progressBreaks time_progress.Model
+	table          tea.Model
+	lastClockIn    tea.Model
 }
 
 func NewClock() ViewClock {
 	return ViewClock{
-		progressWork: time_progress.NewTimeProgress(),
-		table:        table.NewTable(),
-		lastClockIn:  last_clock_in.NewLastClockIn(),
+		progressWork:   time_progress.NewTimeProgress(),
+		progressBreaks: time_progress.NewTimeProgress(),
+		table:          table.NewTable(),
+		lastClockIn:    last_clock_in.NewLastClockIn(),
 	}
 }
 
@@ -141,20 +143,29 @@ func (view ViewClock) View() string {
 
 	if store.IsClockedIn() {
 		view.progressWork.Color = types.Theme.Success
+		view.progressBreaks.Color = types.Theme.Warn
 	} else if store.IsAtBreak() {
 		view.progressWork.Color = types.Theme.Warn
+		view.progressBreaks.Color = types.Theme.Success
 	} else {
 		view.progressWork.Color = types.Theme.Error
+		view.progressBreaks.Color = types.Theme.Error
 	}
 
+	view.progressWork.Label = store.Strings().WORKTIME
 	view.progressWork.Elapsed = store.GetElapsedWorkTime()
 	view.progressWork.Target = store.GetHoursPerDay()
+
+	view.progressBreaks.Label = store.Strings().BREAKTIME
+	view.progressBreaks.Elapsed = store.GetElapsedBreakTime()
+	view.progressBreaks.Target = store.GetMandatoryBreakTime()
 
 	components := []string{}
 	components = append(components,
 		row(strings.Replace(store.Strings().CURRENT_TIME, "$time", view.now, 1)),
 		row(view.lastClockIn.View()),
 		row(view.progressWork.View()),
+		row(view.progressBreaks.View()),
 		row(store.Strings().ESTIMATED_END_OF_WORKDAY+": "+estimatedEndOfWorkday),
 	)
 

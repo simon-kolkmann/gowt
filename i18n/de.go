@@ -26,6 +26,9 @@ var de Strings = Strings{
 	ENTRY_SAVE_FAILED:  "Mindestens eine Eingabe ist fehlerhaft und kann nicht gespeichert werden.",
 	NO_ENTRY_SELECTED:  "Kein Eintrag ausgewählt.",
 
+	WORKTIME:  "Arbeitszeit",
+	BREAKTIME: "Pausenzeit",
+
 	HELP_CLOCK_IN_OUT:  "ein- und ausstempeln",
 	HELP_BREAK:         "pause starten/beenden",
 	HELP_QUIT:          "beenden",
