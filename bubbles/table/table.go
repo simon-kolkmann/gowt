@@ -95,13 +95,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case util.TimeTickMsg, messages.ClockInMsg, messages.ClockOutMsg:
 		m.calculateTableRows()
 
-	case store.StoreChangedMsg:
-		// TODO: more specific messages
-		// language change
-		m.table = createTable()
-		m.entries = store.GetEntries()
-		m.calculateTableRows()
-		m.table.SetCursor(m.cursor)
+	case messages.StoreMutatedMsg:
+		switch msg.Mutation {
+		case types.MUTATION_INIT, types.MUTATION_ENTRIES, types.MUTATION_LANGUAGE:
+			m.table = createTable()
+			m.entries = store.GetEntries()
+			m.calculateTableRows()
+			m.table.SetCursor(m.cursor)
+		}
 	}
 
 	return m, tea.Batch(cmds...)

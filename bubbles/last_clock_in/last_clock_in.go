@@ -34,8 +34,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case messages.ClockOutMsg:
 		m.lastClockIn = time.Time{}
 
-	case store.StoreChangedMsg:
-		m.lastClockIn = store.LastClockIn()
+	case messages.StoreMutatedMsg:
+		switch msg.Mutation {
+		case types.MUTATION_ENTRIES:
+			m.lastClockIn = store.LastClockIn()
+		}
 
 	case messages.ViewChangedMsg:
 		m.lastClockIn = store.LastClockIn()
