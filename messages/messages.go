@@ -21,3 +21,7 @@ type EndBreakMsg struct {
 }
 
 type ViewChangedMsg types.View
+
+type StoreMutatedMsg struct {
+	Mutation types.Mutation
+}

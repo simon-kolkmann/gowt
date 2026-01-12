@@ -32,8 +32,6 @@ type storeJsonFile struct {
 	Language       i18n.Language `json:"language"`
 }
 
-type StoreChangedMsg struct{}
-
 func Init() tea.Cmd {
 	s.activeView = types.ViewClock
 
@@ -50,7 +48,7 @@ func Init() tea.Cmd {
 	// but it obviously sucks.
 	SetEntries(s.entries)
 
-	return saveAndSendStoreChangedMsg
+	return saveAndNotify(types.MUTATION_INIT)
 }
 
 // Returns the last time the user clocked in.
@@ -83,13 +81,14 @@ func LastClockIn() time.Time {
 func SetEntries(entries []types.Entry) tea.Cmd {
 	s.entries = entries
 
+	var cmd tea.Cmd
 	if len(entries) > 0 {
-		SetActiveEntry(&entries[len(entries)-1])
+		cmd = SetActiveEntry(&entries[len(entries)-1])
 	} else {
-		SetActiveEntry(nil)
+		cmd = SetActiveEntry(nil)
 	}
 
-	return saveAndSendStoreChangedMsg
+	return tea.Batch(saveAndNotify(types.MUTATION_ENTRIES), cmd)
 }
 
 func GetEntries() []types.Entry {
@@ -107,12 +106,12 @@ func LastEntry() *types.Entry {
 func AddEntry(entry types.Entry) tea.Cmd {
 	s.entries = append(s.entries, entry)
 	SetActiveEntry(&s.entries[len(s.entries)-1])
-	return saveAndSendStoreChangedMsg
+	return saveAndNotify(types.MUTATION_ENTRIES)
 }
 
 func SetHoursPerDay(hoursPerDay time.Duration) tea.Cmd {
 	s.hoursPerDay = hoursPerDay
-	return saveAndSendStoreChangedMsg
+	return saveAndNotify(types.MUTATION_SETTINGS_HOURS_PER_DAY)
 }
 
 func GetHoursPerDay() time.Duration {
@@ -133,7 +132,7 @@ func GetTotalBreakTime() time.Duration {
 
 func SetDailySetupTime(dailySetupTime time.Duration) tea.Cmd {
 	s.dailySetupTime = dailySetupTime
-	return saveAndSendStoreChangedMsg
+	return saveAndNotify(types.MUTATION_SETTINGS_DAILY_SETUP_TIME)
 }
 
 func GetDailySetupTime() time.Duration {
@@ -147,7 +146,7 @@ func ToggleLanguage() tea.Cmd {
 		s.language = i18n.LANG_EN
 	}
 
-	return saveAndSendStoreChangedMsg
+	return saveAndNotify(types.MUTATION_LANGUAGE)
 }
 
 func SetActiveView(v types.View) tea.Cmd {
@@ -166,7 +165,7 @@ func GetActiveView() types.View {
 
 func SetActiveEntry(v *types.Entry) tea.Cmd {
 	s.activeEntry = v
-	return saveAndSendStoreChangedMsg
+	return saveAndNotify(types.MUTATION_ACTIVE_ENTRY)
 }
 
 // returns a copy of the active entry
@@ -184,7 +183,7 @@ func UpdateActiveEntry(start, end time.Time) tea.Cmd {
 	s.activeEntry.Start = start
 	s.activeEntry.End = end
 
-	return saveAndSendStoreChangedMsg
+	return saveAndNotify(types.MUTATION_ACTIVE_ENTRY)
 }
 
 func Strings() i18n.Strings {
@@ -238,10 +237,14 @@ func KindAsString(kind types.EntryKind) string {
 	}
 }
 
-func saveAndSendStoreChangedMsg() tea.Msg {
+func saveAndNotify(mutation types.Mutation) tea.Cmd {
 	saveToFile(s)
 
-	return StoreChangedMsg{}
+	return func() tea.Msg {
+		return messages.StoreMutatedMsg{
+			Mutation: mutation,
+		}
+	}
 }
 
 func getFilePath() string {
