@@ -35,5 +35,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return m.help.FullHelpView(util.Keys.FullHelp(store.GetActiveView(), store.Strings()))
+	return m.help.FullHelpView(util.Keys.FullHelp(store.State().ActiveView, store.State().Strings()))
 }

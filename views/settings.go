@@ -1,7 +1,6 @@
 package views
 
 import (
-	"gowt/messages"
 	"gowt/store"
 	"gowt/util"
 	"time"
@@ -21,7 +20,7 @@ func NewSettings() ViewSettings {
 	hoursPerDay := textinput.New()
 	hoursPerDay.Placeholder = "1h23m4s"
 	hoursPerDay.CharLimit = 10
-	hoursPerDay.Prompt = store.Strings().HOURS_PER_DAY_LABEL + ":\n"
+	hoursPerDay.Prompt = store.State().Strings().HOURS_PER_DAY_LABEL + ":\n"
 	hoursPerDay.Validate = util.Validators.Time
 	hoursPerDay.Cursor.Blink = true
 	hoursPerDay.Focus()
@@ -29,7 +28,7 @@ func NewSettings() ViewSettings {
 	dailySetupTime := textinput.New()
 	dailySetupTime.Placeholder = "10m"
 	dailySetupTime.CharLimit = 10
-	dailySetupTime.Prompt = store.Strings().DAILY_SETUP_TIME_LABEL + ":\n"
+	dailySetupTime.Prompt = store.State().Strings().DAILY_SETUP_TIME_LABEL + ":\n"
 	dailySetupTime.Validate = util.Validators.Time
 
 	return ViewSettings{
@@ -61,11 +60,13 @@ func (view ViewSettings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return view, view.saveSettingsIfValid()
 		}
 
-	case messages.ViewChangedMsg:
-		view.hoursPerDay.SetValue(store.GetHoursPerDay().String())
-		view.dailySetupTime.SetValue(store.GetDailySetupTime().String())
-
-		view.hoursPerDay.CursorEnd()
+	case store.StateMutatedMsg:
+		switch msg.Field {
+		case store.FIELD_ACTIVE_VIEW:
+			view.hoursPerDay.SetValue(store.State().HoursPerDay.String())
+			view.dailySetupTime.SetValue(store.State().DailySetupTime.String())
+			view.hoursPerDay.CursorEnd()
+		}
 	}
 
 	return view, tea.Batch(cmds...)
@@ -81,7 +82,7 @@ func (view ViewSettings) View() string {
 	return box.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Left,
-			store.Strings().VIEW_CAPTION_SETTINGS+"\n",
+			store.State().Strings().VIEW_CAPTION_SETTINGS+"\n",
 			view.hoursPerDay.View()+"\n",
 			view.dailySetupTime.View()+"\n",
 		),
@@ -93,12 +94,12 @@ func (view *ViewSettings) saveSettingsIfValid() tea.Cmd {
 
 	if view.hoursPerDay.Err != nil {
 		hoursPerDay, _ := time.ParseDuration(view.hoursPerDay.Value())
-		cmds = append(cmds, store.SetHoursPerDay(hoursPerDay))
+		cmds = append(cmds, store.Commit(store.SetHoursPerDay(hoursPerDay)))
 	}
 
 	if view.dailySetupTime.Err != nil {
 		dailySetupTime, _ := time.ParseDuration(view.dailySetupTime.Value())
-		cmds = append(cmds, store.SetDailySetupTime(dailySetupTime))
+		cmds = append(cmds, store.Commit(store.SetDailySetupTime(dailySetupTime)))
 	}
 
 	return tea.Batch(cmds...)

@@ -28,11 +28,11 @@ func NewTable() Model {
 
 func createTable() table.Model {
 	columns := []table.Column{
-		{Title: store.Strings().KIND, Width: 10},
-		{Title: store.Strings().START, Width: 10},
-		{Title: store.Strings().END, Width: 10},
-		{Title: store.Strings().DURATION, Width: 10},
-		{Title: store.Strings().SUM, Width: 10},
+		{Title: store.State().Strings().KIND, Width: 10},
+		{Title: store.State().Strings().START, Width: 10},
+		{Title: store.State().Strings().END, Width: 10},
+		{Title: store.State().Strings().DURATION, Width: 10},
+		{Title: store.State().Strings().SUM, Width: 10},
 	}
 
 	t := table.New(
@@ -74,32 +74,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, util.Keys.Delete):
 			entries := make([]types.Entry, 0)
 			cursor := m.table.Cursor()
-			entryIndex := len(store.GetEntries()) - 1 - cursor
+			entryIndex := len(store.State().Entries) - 1 - cursor
 
-			for i, entry := range store.GetEntries() {
+			for i, entry := range store.State().Entries {
 				if i != entryIndex {
 					entries = append(entries, entry)
 				}
 			}
 			m.table.SetCursor(cursor - 1)
-			cmds = append(cmds, store.SetEntries(entries))
+			cmds = append(cmds, store.Commit(store.SetEntries(entries)))
 
 		case key.Matches(msg, util.Keys.AltDelete):
-			cmds = append(cmds, store.SetEntries(make([]types.Entry, 0)))
+			cmds = append(cmds, store.Commit(store.SetEntries(make([]types.Entry, 0))))
 
 		case key.Matches(msg, util.Keys.Up, util.Keys.Down):
 			m.cursor = m.table.Cursor()
-			cmds = append(cmds, store.SetActiveEntry(m.getSelectedEntry()))
+			cmds = append(cmds, store.Commit(store.SetActiveEntry(m.getSelectedEntry())))
 		}
 
 	case util.TimeTickMsg, messages.ClockInMsg, messages.ClockOutMsg:
 		m.calculateTableRows()
 
-	case messages.StoreMutatedMsg:
-		switch msg.Mutation {
-		case types.MUTATION_INIT, types.MUTATION_ENTRIES, types.MUTATION_LANGUAGE:
+	case store.StateMutatedMsg:
+		switch msg.Field {
+		case store.FIELD_ENTRIES, store.FIELD_LANGUAGE, store.FIELD_ACTIVE_VIEW:
 			m.table = createTable()
-			m.entries = store.GetEntries()
+			m.entries = store.State().Entries
 			m.calculateTableRows()
 			m.table.SetCursor(m.cursor)
 		}
@@ -115,7 +115,7 @@ func (m Model) View() string {
 func (m *Model) calculateTableRows() {
 	rows := make([]table.Row, 0)
 
-	totalWorkTime := store.GetElapsedWorkTime()
+	totalWorkTime := store.State().GetElapsedWorkTime()
 
 	for i := len(m.entries) - 1; i >= 0; i-- {
 		entry := m.entries[i]
@@ -126,7 +126,7 @@ func (m *Model) calculateTableRows() {
 		var duration string
 		var sum string
 
-		kind = store.KindAsString(entry.Kind)
+		kind = store.State().Strings().ENTRY_KIND(entry.Kind)
 		start, end, duration = entry.ToString()
 		sum = totalWorkTime.String()
 

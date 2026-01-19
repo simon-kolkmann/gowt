@@ -2,7 +2,6 @@ package views
 
 import (
 	"gowt/bubbles/time_input"
-	"gowt/messages"
 	"gowt/store"
 	"gowt/types"
 	"time"
@@ -21,8 +20,8 @@ type ViewEdit struct {
 
 func NewEdit() ViewEdit {
 	return ViewEdit{
-		start: time_input.New(store.Strings().START + ": "),
-		end:   time_input.New(store.Strings().END + ": "),
+		start: time_input.New(store.State().Strings().START + ": "),
+		end:   time_input.New(store.State().Strings().END + ": "),
 	}
 }
 
@@ -68,19 +67,22 @@ func (view ViewEdit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			start := view.start.GetTime()
 			end := view.end.GetTime()
-			cmds = append(cmds, store.UpdateActiveEntry(start, end))
+			cmds = append(cmds, store.Commit(store.ModifyActiveEntry(start, end)))
 			view.showMessage = true
 
 		case "ctrl+r":
-			view.SetEntry(store.GetActiveEntry())
+			view.SetEntry(store.State().ActiveEntry)
 		}
 
-	case messages.ViewChangedMsg:
-		view.end.Input.Blur()
-		view.start.Input.CursorEnd()
-		cmds = append(cmds, view.start.Input.Focus())
-		view.SetEntry(store.GetActiveEntry())
-		view.showMessage = false
+	case store.StateMutatedMsg:
+		switch msg.Field {
+		case store.FIELD_ACTIVE_VIEW:
+			view.end.Input.Blur()
+			view.start.Input.CursorEnd()
+			cmds = append(cmds, view.start.Input.Focus())
+			view.SetEntry(store.State().ActiveEntry)
+			view.showMessage = false
+		}
 	}
 
 	return view, tea.Batch(cmds...)
@@ -89,9 +91,9 @@ func (view ViewEdit) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (view ViewEdit) View() string {
 	if view.showMessage {
 		if view.hasError() {
-			view.message = "❌" + store.Strings().ENTRY_SAVE_FAILED
+			view.message = "❌" + store.State().Strings().ENTRY_SAVE_FAILED
 		} else {
-			view.message = store.Strings().ENTRY_SAVE_SUCCESS
+			view.message = store.State().Strings().ENTRY_SAVE_SUCCESS
 		}
 	}
 
@@ -114,8 +116,8 @@ func (view ViewEdit) View() string {
 		return box.Render(
 			lipgloss.JoinVertical(
 				lipgloss.Left,
-				caption.Render(store.Strings().EDIT_ENTRY+"\n"),
-				store.Strings().NO_ENTRY_SELECTED,
+				caption.Render(store.State().Strings().EDIT_ENTRY+"\n"),
+				store.State().Strings().NO_ENTRY_SELECTED,
 			),
 		)
 	}
@@ -123,8 +125,8 @@ func (view ViewEdit) View() string {
 	return box.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Left,
-			caption.Render(store.Strings().EDIT_ENTRY+"\n"),
-			store.Strings().KIND+": "+store.KindAsString(view.entry.Kind),
+			caption.Render(store.State().Strings().EDIT_ENTRY+"\n"),
+			store.State().Strings().KIND+": "+store.State().Strings().ENTRY_KIND(view.entry.Kind),
 			lipgloss.JoinHorizontal(
 				lipgloss.Center,
 				view.start.View(),

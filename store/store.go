@@ -3,7 +3,6 @@ package store
 import (
 	"encoding/json"
 	"gowt/i18n"
-	"gowt/messages"
 	"gowt/types"
 	"os"
 	"path/filepath"
@@ -12,19 +11,17 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-var s store = store{}
-
-type store struct {
-	activeView     types.View
-	activeEntry    *types.Entry
-	date           time.Time
-	hoursPerDay    time.Duration
-	dailySetupTime time.Duration
-	entries        []types.Entry
-	language       i18n.Language
+type StateMutatedMsg struct {
+	Field  field
+	Before state
+	After  state
 }
 
-type storeJsonFile struct {
+var internalState state = state{}
+
+type state struct {
+	ActiveView     types.View    `json:"-"`
+	ActiveEntry    *types.Entry  `json:"-"`
 	Date           time.Time     `json:"date"`
 	HoursPerDay    time.Duration `json:"hoursPerDay"`
 	DailySetupTime time.Duration `json:"dailySetupTime"`
@@ -32,31 +29,192 @@ type storeJsonFile struct {
 	Language       i18n.Language `json:"language"`
 }
 
-func Init() tea.Cmd {
-	s.activeView = types.ViewClock
+type field string
 
-	loadFromFileOrUseDefaults()
+const (
+	FIELD_ACTIVE_VIEW      field = "ActiveView"
+	FIELD_ACTIVE_ENTRY     field = "ActiveEntry"
+	FIELD_DATE             field = "Date"
+	FIELD_HOURS_PER_DAY    field = "HoursPerDay"
+	FIELD_DAILY_SETUP_TIME field = "DailySetupTime"
+	FIELD_ENTRIES          field = "Entries"
+	FIELD_LANGUAGE         field = "Language"
+)
 
-	stateIsFromToday := s.date.Format(time.DateOnly) == time.Now().Format(time.DateOnly)
+type mutation = struct {
+	Fields []field
+	Mutate func(*state)
+}
+
+func Initialize() tea.Cmd {
+	cmds := make([]tea.Cmd, 0)
+
+	cmds = append(cmds, internalState.loadFromFileOrUseDefaults())
+
+	stateIsFromToday := internalState.Date.Format(time.DateOnly) == time.Now().Format(time.DateOnly)
 
 	if !stateIsFromToday {
-		SetEntries(make([]types.Entry, 0))
-		s.date = time.Now()
+		cmds = append(cmds, Commit(
+			SetEntries(make([]types.Entry, 0)),
+			SetDate(time.Now()),
+		))
 	}
 
-	// FIXME: I use this so that the active entry is being set right after app launch,
-	// but it obviously sucks.
-	SetEntries(s.entries)
-
-	return saveAndNotify(types.MUTATION_INIT)
+	return tea.Batch(cmds...)
 }
+
+func Commit(mutations ...mutation) tea.Cmd {
+	cmds := make([]tea.Cmd, 0)
+
+	for _, mutation := range mutations {
+		before := internalState
+		mutation.Mutate(&internalState)
+
+		for _, field := range mutation.Fields {
+			cmds = append(cmds, func() tea.Msg {
+				return StateMutatedMsg{
+					Field:  field,
+					Before: before,
+					After:  internalState,
+				}
+			})
+		}
+	}
+
+	internalState.saveToFile()
+
+	return tea.Batch(cmds...)
+}
+
+func State() state {
+	return internalState
+}
+
+// Mutations
+
+func SetActiveView(view types.View) mutation {
+	return mutation{
+		Fields: []field{FIELD_ACTIVE_VIEW},
+		Mutate: func(state *state) {
+			state.ActiveView = view
+		},
+	}
+}
+
+func SetEntries(entries []types.Entry) mutation {
+	return mutation{
+		Fields: []field{FIELD_ENTRIES, FIELD_ACTIVE_ENTRY},
+		Mutate: func(state *state) {
+			state.Entries = entries
+
+			if len(entries) > 0 {
+				state.ActiveEntry = &entries[len(entries)-1]
+			} else {
+				state.ActiveEntry = nil
+			}
+		},
+	}
+}
+
+func AddEntry(entry types.Entry) mutation {
+	return mutation{
+		Fields: []field{FIELD_ENTRIES, FIELD_ACTIVE_ENTRY},
+		Mutate: func(state *state) {
+			state.Entries = append(state.Entries, entry)
+			state.ActiveEntry = &state.Entries[len(state.Entries)-1]
+		},
+	}
+}
+
+func SetDate(date time.Time) mutation {
+	return mutation{
+		Fields: []field{FIELD_DATE},
+		Mutate: func(state *state) {
+			state.Date = date
+		},
+	}
+}
+
+func SetHoursPerDay(hoursPerDay time.Duration) mutation {
+	return mutation{
+		Fields: []field{FIELD_HOURS_PER_DAY},
+		Mutate: func(state *state) {
+			state.HoursPerDay = hoursPerDay
+		},
+	}
+}
+
+func SetDailySetupTime(dailySetupTime time.Duration) mutation {
+	return mutation{
+		Fields: []field{FIELD_DAILY_SETUP_TIME},
+		Mutate: func(state *state) {
+			state.DailySetupTime = dailySetupTime
+		},
+	}
+}
+
+func SetLanguage(language i18n.Language) mutation {
+	return mutation{
+		Fields: []field{FIELD_LANGUAGE},
+		Mutate: func(state *state) {
+			state.Language = language
+		},
+	}
+}
+
+func ToggleLanguage() mutation {
+	return mutation{
+		Fields: []field{FIELD_LANGUAGE},
+		Mutate: func(state *state) {
+			if state.Language == i18n.LANG_EN {
+				state.Language = i18n.LANG_DE
+			} else {
+				state.Language = i18n.LANG_EN
+			}
+		},
+	}
+}
+
+func SetActiveEntry(v *types.Entry) mutation {
+	return mutation{
+		Fields: []field{FIELD_ACTIVE_ENTRY},
+		Mutate: func(state *state) {
+			internalState.ActiveEntry = v
+		},
+	}
+}
+
+func ModifyActiveEntry(start, end time.Time) mutation {
+	return mutation{
+		Fields: []field{FIELD_ACTIVE_ENTRY, FIELD_ENTRIES},
+		Mutate: func(state *state) {
+			state.ActiveEntry.Start = start
+			state.ActiveEntry.End = end
+		},
+	}
+}
+
+func ModifyEntry(entry types.Entry) mutation {
+	return mutation{
+		Fields: []field{FIELD_ENTRIES},
+		Mutate: func(state *state) {
+			for i, candidate := range state.Entries {
+				if candidate.Id == entry.Id {
+					state.Entries[i] = entry
+				}
+			}
+		},
+	}
+}
+
+// Getters
 
 // Returns the last time the user clocked in.
 //
 // If the user is currently clocked out, a zeroed
 // time will be returned.
-func LastClockIn() time.Time {
-	entries := GetEntries()
+func (state state) GetLastClockIn() time.Time {
+	entries := state.Entries
 
 	for i := len(entries) - 1; i >= 0; i-- {
 		entry := entries[i]
@@ -78,122 +236,18 @@ func LastClockIn() time.Time {
 	return time.Time{}
 }
 
-func SetEntries(entries []types.Entry) tea.Cmd {
-	s.entries = entries
-
-	var cmd tea.Cmd
-	if len(entries) > 0 {
-		cmd = SetActiveEntry(&entries[len(entries)-1])
+func (state state) GetLastEntry() (last types.Entry, ok bool) {
+	if len(state.Entries) > 0 {
+		return state.Entries[len(state.Entries)-1], true
 	} else {
-		cmd = SetActiveEntry(nil)
-	}
-
-	return tea.Batch(saveAndNotify(types.MUTATION_ENTRIES), cmd)
-}
-
-func GetEntries() []types.Entry {
-	return s.entries
-}
-
-func LastEntry() *types.Entry {
-	if len(s.entries) > 0 {
-		return &s.entries[len(s.entries)-1]
-	} else {
-		return nil
+		return types.Entry{}, false
 	}
 }
 
-func AddEntry(entry types.Entry) tea.Cmd {
-	s.entries = append(s.entries, entry)
-	SetActiveEntry(&s.entries[len(s.entries)-1])
-	return saveAndNotify(types.MUTATION_ENTRIES)
-}
-
-func SetHoursPerDay(hoursPerDay time.Duration) tea.Cmd {
-	s.hoursPerDay = hoursPerDay
-	return saveAndNotify(types.MUTATION_SETTINGS_HOURS_PER_DAY)
-}
-
-func GetHoursPerDay() time.Duration {
-	return s.hoursPerDay
-}
-
-func GetTotalBreakTime() time.Duration {
-	var total time.Duration
-
-	for _, entry := range s.entries {
-		if entry.Kind == types.EntryKindBreak {
-			total += entry.Duration()
-		}
-	}
-
-	return total
-}
-
-func SetDailySetupTime(dailySetupTime time.Duration) tea.Cmd {
-	s.dailySetupTime = dailySetupTime
-	return saveAndNotify(types.MUTATION_SETTINGS_DAILY_SETUP_TIME)
-}
-
-func GetDailySetupTime() time.Duration {
-	return s.dailySetupTime
-}
-
-func ToggleLanguage() tea.Cmd {
-	if s.language == i18n.LANG_EN {
-		s.language = i18n.LANG_DE
-	} else {
-		s.language = i18n.LANG_EN
-	}
-
-	return saveAndNotify(types.MUTATION_LANGUAGE)
-}
-
-func SetActiveView(v types.View) tea.Cmd {
-	s.activeView = v
-
-	saveToFile(s)
-
-	return func() tea.Msg {
-		return messages.ViewChangedMsg(v)
-	}
-}
-
-func GetActiveView() types.View {
-	return s.activeView
-}
-
-func SetActiveEntry(v *types.Entry) tea.Cmd {
-	s.activeEntry = v
-	return saveAndNotify(types.MUTATION_ACTIVE_ENTRY)
-}
-
-// returns a copy of the active entry
-// do not update this copy - use UpdateActiveEntry instead.
-func GetActiveEntry() *types.Entry {
-	if s.activeEntry != nil {
-		copy := *s.activeEntry
-		return &copy
-	} else {
-		return nil
-	}
-}
-
-func UpdateActiveEntry(start, end time.Time) tea.Cmd {
-	s.activeEntry.Start = start
-	s.activeEntry.End = end
-
-	return saveAndNotify(types.MUTATION_ACTIVE_ENTRY)
-}
-
-func Strings() i18n.Strings {
-	return i18n.GetStringsFor(s.language)
-}
-
-func GetElapsedWorkTime() time.Duration {
+func (state state) GetElapsedWorkTime() time.Duration {
 	var elapsed time.Duration
 
-	for _, entry := range s.entries {
+	for _, entry := range internalState.Entries {
 		if entry.Kind == types.EntryKindWork {
 			elapsed += entry.Duration()
 		}
@@ -202,52 +256,37 @@ func GetElapsedWorkTime() time.Duration {
 	return elapsed
 }
 
-func GetRemainingWorkTime() time.Duration {
-	return time.Duration(s.hoursPerDay - GetElapsedWorkTime())
+func (state state) GetRemainingWorkTime() time.Duration {
+	return time.Duration(state.HoursPerDay - state.GetElapsedWorkTime())
 }
 
-func IsClockedIn() bool {
-	if len(s.entries) == 0 {
+func (state state) IsClockedIn() bool {
+	if len(state.Entries) == 0 {
 		return false
 	}
 
-	current := s.entries[len(s.entries)-1]
+	current := state.Entries[len(state.Entries)-1]
 
 	return current.Kind == types.EntryKindWork && current.End.IsZero()
 }
 
-func IsAtBreak() bool {
-	if len(s.entries) == 0 {
+func (state state) IsAtBreak() bool {
+	if len(state.Entries) == 0 {
 		return false
 	}
 
-	current := s.entries[len(s.entries)-1]
+	current := state.Entries[len(state.Entries)-1]
 
 	return current.Kind == types.EntryKindBreak && current.End.IsZero()
 }
 
-func KindAsString(kind types.EntryKind) string {
-	switch kind {
-	case types.EntryKindWork:
-		return Strings().ENTRY_KIND_WORK
-	case types.EntryKindBreak:
-		return Strings().ENTRY_KIND_BREAK
-	default:
-		return "n/a"
-	}
+func (state state) Strings() i18n.Strings {
+	return i18n.GetStringsFor(state.Language)
 }
 
-func saveAndNotify(mutation types.Mutation) tea.Cmd {
-	saveToFile(s)
+// Internal helpers
 
-	return func() tea.Msg {
-		return messages.StoreMutatedMsg{
-			Mutation: mutation,
-		}
-	}
-}
-
-func getFilePath() string {
+func (state state) getFilePath() string {
 	value, _ := os.UserConfigDir()
 	path := filepath.Join(value, "gowt")
 	_ = os.Mkdir(path, 0700)
@@ -255,42 +294,44 @@ func getFilePath() string {
 	return filepath.Join(path, "state.json")
 }
 
-func loadFromFileOrUseDefaults() {
-	file, err := os.ReadFile(getFilePath())
+func (state state) saveToFile() {
+	data, _ := json.Marshal(state)
+	os.WriteFile(state.getFilePath(), data, 0700)
+}
+
+func (s *state) loadFromFileOrUseDefaults() tea.Cmd {
+	useDefaults := func() tea.Cmd {
+		return Commit(
+			SetActiveView(types.ViewClock),
+			SetActiveEntry(nil),
+			SetDate(time.Now()),
+			SetHoursPerDay(time.Duration(time.Hour*8)),
+			SetDailySetupTime(time.Duration(0)),
+			SetEntries(make([]types.Entry, 0)),
+			SetLanguage(i18n.LANG_EN),
+		)
+	}
+
+	file, err := os.ReadFile(s.getFilePath())
 
 	if err != nil {
-		s.date = time.Now()
-		s.hoursPerDay = time.Duration(time.Hour * 8)
-		s.dailySetupTime = time.Duration(0)
-		s.entries = make([]types.Entry, 0)
-		s.language = i18n.LANG_EN
-	} else {
-		loadFromJson(file, &s)
+		return useDefaults()
 	}
-}
 
-func saveToFile(s store) {
-	b, _ := json.Marshal(storeToJson(s))
-	os.WriteFile(getFilePath(), b, 0700)
-}
+	stateFromFile := state{}
+	err = json.Unmarshal(file, &stateFromFile)
 
-func storeToJson(s store) storeJsonFile {
-	return storeJsonFile{
-		Date:           s.date,
-		HoursPerDay:    s.hoursPerDay,
-		DailySetupTime: s.dailySetupTime,
-		Entries:        s.entries,
-		Language:       s.language,
+	if err != nil {
+		return useDefaults()
 	}
-}
 
-func loadFromJson(f []byte, s *store) {
-	sj := storeJsonFile{}
-	json.Unmarshal(f, &sj)
-
-	s.date = sj.Date
-	s.hoursPerDay = sj.HoursPerDay
-	s.dailySetupTime = sj.DailySetupTime
-	s.entries = sj.Entries
-	s.language = sj.Language
+	return Commit(
+		SetActiveView(types.ViewClock),
+		SetActiveEntry(nil),
+		SetDate(stateFromFile.Date),
+		SetHoursPerDay(stateFromFile.HoursPerDay),
+		SetDailySetupTime(stateFromFile.DailySetupTime),
+		SetEntries(stateFromFile.Entries),
+		SetLanguage(stateFromFile.Language),
+	)
 }

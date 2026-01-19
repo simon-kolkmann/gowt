@@ -34,8 +34,8 @@ func NewClock() ViewClock {
 
 func clockIn(entry types.Entry) tea.Cmd {
 	// if this is the first entry of the day, subtract the daily setup time
-	if len(store.GetEntries()) == 0 {
-		entry.Start = entry.Start.Add(store.GetDailySetupTime() * -1)
+	if len(store.State().Entries) == 0 {
+		entry.Start = entry.Start.Add(store.State().DailySetupTime * -1)
 	}
 
 	return func() tea.Msg {
@@ -74,7 +74,7 @@ func (view ViewClock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, util.Keys.Enter):
-			if store.LastClockIn().IsZero() {
+			if store.State().GetLastClockIn().IsZero() {
 				cmds = append(cmds, clockIn(types.Entry{
 					Id:    uuid.NewString(),
 					Kind:  types.EntryKindWork,
@@ -84,7 +84,7 @@ func (view ViewClock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, clockOut)
 			}
 		case key.Matches(msg, util.Keys.AltEnter):
-			if !store.IsAtBreak() {
+			if !store.State().IsAtBreak() {
 				cmds = append(cmds, startBreak(types.Entry{
 					Id:    uuid.NewString(),
 					Kind:  types.EntryKindBreak,
@@ -100,28 +100,34 @@ func (view ViewClock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		view.now = string(msg)
 
 	case messages.ClockInMsg:
-		if store.LastEntry() != nil && store.LastEntry().End.IsZero() {
-			store.LastEntry().End = time.Now()
+		if last, ok := store.State().GetLastEntry(); ok {
+			if last.End.IsZero() {
+				last.End = time.Now()
+				cmds = append(cmds, store.Commit(store.ModifyEntry(last)))
+			}
 		}
 
-		cmds = append(cmds, store.AddEntry(msg.Entry))
+		cmds = append(cmds, store.Commit(store.AddEntry(msg.Entry)))
 
 	case messages.ClockOutMsg:
-		entries := store.GetEntries()
+		entries := store.State().Entries
 		entries[len(entries)-1].End = time.Now()
-		cmds = append(cmds, store.SetEntries(entries))
+		cmds = append(cmds, store.Commit(store.SetEntries(entries)))
 
 	case messages.StartBreakMsg:
-		if store.LastEntry() != nil && store.LastEntry().End.IsZero() {
-			store.LastEntry().End = time.Now()
+		if last, ok := store.State().GetLastEntry(); ok {
+			if last.End.IsZero() {
+				last.End = time.Now()
+				cmds = append(cmds, store.Commit(store.ModifyEntry(last)))
+			}
 		}
 
-		cmds = append(cmds, store.AddEntry(msg.Entry))
+		cmds = append(cmds, store.Commit(store.AddEntry(msg.Entry)))
 
 	case messages.EndBreakMsg:
-		entries := store.GetEntries()
+		entries := store.State().Entries
 		entries[len(entries)-1].End = time.Now()
-		cmds = append(cmds, store.SetEntries(entries))
+		cmds = append(cmds, store.Commit(store.SetEntries(entries)))
 	}
 
 	view.table, cmd = view.table.Update(msg)
@@ -139,26 +145,26 @@ func (view ViewClock) View() string {
 
 	estimatedEndOfWorkday := view.getEstimatedEndOfWorkdayAsString()
 
-	if store.IsClockedIn() {
+	if store.State().IsClockedIn() {
 		view.progressWork.Color = types.Theme.Success
-	} else if store.IsAtBreak() {
+	} else if store.State().IsAtBreak() {
 		view.progressWork.Color = types.Theme.Warn
 	} else {
 		view.progressWork.Color = types.Theme.Error
 	}
 
-	view.progressWork.Elapsed = store.GetElapsedWorkTime()
-	view.progressWork.Target = store.GetHoursPerDay()
+	view.progressWork.Elapsed = store.State().GetElapsedWorkTime()
+	view.progressWork.Target = store.State().HoursPerDay
 
 	components := []string{}
 	components = append(components,
-		row(strings.Replace(store.Strings().CURRENT_TIME, "$time", view.now, 1)),
+		row(strings.Replace(store.State().Strings().CURRENT_TIME, "$time", view.now, 1)),
 		row(view.lastClockIn.View()),
 		row(view.progressWork.View()),
-		row(store.Strings().ESTIMATED_END_OF_WORKDAY+": "+estimatedEndOfWorkday),
+		row(store.State().Strings().ESTIMATED_END_OF_WORKDAY+": "+estimatedEndOfWorkday),
 	)
 
-	if len(store.GetEntries()) > 0 {
+	if len(store.State().Entries) > 0 {
 		components = append(components, row(view.table.View()))
 	}
 
@@ -169,7 +175,7 @@ func (view ViewClock) View() string {
 }
 
 func (view ViewClock) getRemainingTimeAsString() string {
-	remaining := store.GetRemainingWorkTime() * -1
+	remaining := store.State().GetRemainingWorkTime() * -1
 
 	if remaining < 0 {
 		return remaining.String()
@@ -179,7 +185,7 @@ func (view ViewClock) getRemainingTimeAsString() string {
 }
 
 func (view ViewClock) getEstimatedEndOfWorkday() time.Time {
-	remaining := store.GetRemainingWorkTime()
+	remaining := store.State().GetRemainingWorkTime()
 	estimatedEndOfWorkday := time.Now().Add(remaining)
 	return estimatedEndOfWorkday
 }

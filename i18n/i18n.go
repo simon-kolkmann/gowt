@@ -23,8 +23,7 @@ type Strings struct {
 	AT_BREAK                 string
 	ESTIMATED_END_OF_WORKDAY string
 
-	ENTRY_KIND_BREAK string
-	ENTRY_KIND_WORK  string
+	ENTRY_KIND func(v types.EntryKind) string
 
 	VIEW_CAPTION_SETTINGS  string
 	HOURS_PER_DAY_LABEL    string

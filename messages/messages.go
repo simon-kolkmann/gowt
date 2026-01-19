@@ -19,9 +19,3 @@ type StartBreakMsg struct {
 type EndBreakMsg struct {
 	Entry types.Entry
 }
-
-type ViewChangedMsg types.View
-
-type StoreMutatedMsg struct {
-	Mutation types.Mutation
-}

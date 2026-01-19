@@ -31,9 +31,7 @@ func NewApp() app {
 }
 
 func (a app) Init() tea.Cmd {
-	return tea.Batch(
-		store.Init(),
-	)
+	return store.Initialize()
 }
 
 func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -56,32 +54,32 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return a, tea.Quit
 
 		case key.Matches(msg, util.Keys.CtrlL):
-			cmds = append(cmds, store.ToggleLanguage())
+			cmds = append(cmds, store.Commit(store.ToggleLanguage()))
 
 		case key.Matches(msg, util.Keys.CtrlLeft):
-			if store.GetActiveView() > types.ViewSettings {
-				cmds = append(cmds, store.SetActiveView(store.GetActiveView()-1))
+			if store.State().ActiveView > types.ViewSettings {
+				cmds = append(cmds, store.Commit(store.SetActiveView(store.State().ActiveView-1)))
 			}
 
 		case key.Matches(msg, util.Keys.CtrlRight):
-			if store.GetActiveView() < types.ViewEdit {
-				cmds = append(cmds, store.SetActiveView(store.GetActiveView()+1))
+			if store.State().ActiveView < types.ViewEdit {
+				cmds = append(cmds, store.Commit(store.SetActiveView(store.State().ActiveView+1)))
 			}
 
 		}
 	}
 
-	if store.GetActiveView() == types.ViewClock {
+	if store.State().ActiveView == types.ViewClock {
 		a.clock, cmd = a.clock.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
-	if store.GetActiveView() == types.ViewSettings {
+	if store.State().ActiveView == types.ViewSettings {
 		a.settings, cmd = a.settings.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
-	if store.GetActiveView() == types.ViewEdit {
+	if store.State().ActiveView == types.ViewEdit {
 		a.edit, cmd = a.edit.Update(msg)
 		cmds = append(cmds, cmd)
 	}
@@ -96,7 +94,7 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (a app) View() string {
 	var activeView string
 
-	switch store.GetActiveView() {
+	switch store.State().ActiveView {
 	case types.ViewClock:
 		activeView = a.clock.View()
 

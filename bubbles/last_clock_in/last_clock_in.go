@@ -34,15 +34,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case messages.ClockOutMsg:
 		m.lastClockIn = time.Time{}
 
-	case messages.StoreMutatedMsg:
-		switch msg.Mutation {
-		case types.MUTATION_ENTRIES:
-			m.lastClockIn = store.LastClockIn()
+	case store.StateMutatedMsg:
+		switch msg.Field {
+		case store.FIELD_ACTIVE_VIEW, store.FIELD_ENTRIES:
+			m.lastClockIn = store.State().GetLastClockIn()
 		}
-
-	case messages.ViewChangedMsg:
-		m.lastClockIn = store.LastClockIn()
-
 	}
 
 	return m, nil
@@ -51,16 +47,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	style := lipgloss.NewStyle().Bold(true)
 
-	if store.IsClockedIn() {
-		template := store.Strings().CLOCKED_IN
+	if store.State().IsClockedIn() {
+		template := store.State().Strings().CLOCKED_IN
 		lastClockIn := m.lastClockIn.Format(time.TimeOnly)
 		s := strings.Replace(template, "$time", lastClockIn, 1)
 		return style.Foreground(lipgloss.Color(types.Theme.Success)).Render(s)
-	} else if store.IsAtBreak() {
-		s := store.Strings().AT_BREAK
+	} else if store.State().IsAtBreak() {
+		s := store.State().Strings().AT_BREAK
 		return style.Foreground(lipgloss.Color(types.Theme.Warn)).Render(s)
 	} else {
-		s := store.Strings().CLOCKED_OUT
+		s := store.State().Strings().CLOCKED_OUT
 		return style.Foreground(lipgloss.Color(types.Theme.Error)).Render(s)
 	}
 }

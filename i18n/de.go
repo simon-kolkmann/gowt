@@ -14,8 +14,16 @@ var de Strings = Strings{
 	AT_BREAK:                 "In Pause.",
 	ESTIMATED_END_OF_WORKDAY: "Voraussichtlicher Feierabend",
 
-	ENTRY_KIND_BREAK: "Pause",
-	ENTRY_KIND_WORK:  "Arbeit",
+	ENTRY_KIND: func(v types.EntryKind) string {
+		switch v {
+		case types.EntryKindWork:
+			return "Arbeit"
+		case types.EntryKindBreak:
+			return "Pause"
+		default:
+			return "n/a"
+		}
+	},
 
 	VIEW_CAPTION_SETTINGS:  "Einstellungen",
 	HOURS_PER_DAY_LABEL:    "tägliche Arbeitszeit",
