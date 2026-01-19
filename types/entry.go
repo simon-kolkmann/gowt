@@ -18,7 +18,7 @@ type Entry struct {
 	Kind  EntryKind `json:"kind"`
 }
 
-func (e *Entry) Duration() time.Duration {
+func (e Entry) Duration() time.Duration {
 	if e.End.IsZero() {
 		return time.Since(e.Start).Round(time.Second)
 	}
