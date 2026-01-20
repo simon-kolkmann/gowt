@@ -11,7 +11,10 @@
       "console": "integratedTerminal",
       "mode": "auto",
       "program": "${workspaceFolder}",
-      "output": "/tmp/debug.bin"
+      "output": "/tmp/debug.bin",
+      "env": {
+        "DEBUG": "true"
+      }
     }
   ]
 }

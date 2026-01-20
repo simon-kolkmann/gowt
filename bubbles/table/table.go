@@ -13,46 +13,15 @@ import (
 )
 
 type Model struct {
-	table   table.Model
-	cursor  int
-	entries []types.Entry
+	table table.Model
 }
 
 func NewTable() Model {
 	model := Model{
-		table: createTable(),
+		table: getTable(),
 	}
 
 	return model
-}
-
-func createTable() table.Model {
-	columns := []table.Column{
-		{Title: store.State().Strings().KIND, Width: 10},
-		{Title: store.State().Strings().START, Width: 10},
-		{Title: store.State().Strings().END, Width: 10},
-		{Title: store.State().Strings().DURATION, Width: 10},
-		{Title: store.State().Strings().SUM, Width: 10},
-	}
-
-	t := table.New(
-		table.WithColumns(columns),
-		table.WithFocused(true),
-	)
-
-	s := table.DefaultStyles()
-	s.Header = s.Header.
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color(types.Theme.Primary)).
-		Foreground(lipgloss.Color(types.Theme.Text)).
-		BorderBottom(true)
-	s.Selected = s.Selected.
-		Foreground(lipgloss.Color(types.Theme.Text)).
-		Background(lipgloss.Color(types.Theme.Primary)).
-		Bold(false)
-	t.SetStyles(s)
-
-	return t
 }
 
 func (m Model) Init() tea.Cmd {
@@ -72,36 +41,42 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 
 		case key.Matches(msg, util.Keys.Delete):
-			entries := make([]types.Entry, 0)
-			cursor := m.table.Cursor()
-			entryIndex := len(store.State().Entries) - 1 - cursor
-
-			for i, entry := range store.State().Entries {
-				if i != entryIndex {
-					entries = append(entries, entry)
-				}
-			}
-			m.table.SetCursor(cursor - 1)
-			cmds = append(cmds, store.Commit(store.SetEntries(entries)))
+			cmds = append(cmds, store.Commit(store.DeleteActiveEntry()))
 
 		case key.Matches(msg, util.Keys.AltDelete):
 			cmds = append(cmds, store.Commit(store.SetEntries(make([]types.Entry, 0))))
 
-		case key.Matches(msg, util.Keys.Up, util.Keys.Down):
-			m.cursor = m.table.Cursor()
-			cmds = append(cmds, store.Commit(store.SetActiveEntry(m.getSelectedEntry())))
+		case key.Matches(msg, util.Keys.Up):
+			index := store.State().GetActiveEntryIndex()
+
+			if index < len(store.State().Entries)-1 {
+				cmds = append(cmds, store.Commit(
+					store.SetActiveEntryByIndex(index+1),
+				))
+			}
+
+		case key.Matches(msg, util.Keys.Down):
+			index := store.State().GetActiveEntryIndex()
+
+			if index > 0 {
+				cmds = append(cmds, store.Commit(
+					store.SetActiveEntryByIndex(index-1),
+				))
+			}
 		}
 
-	case util.TimeTickMsg, messages.ClockInMsg, messages.ClockOutMsg:
-		m.calculateTableRows()
+	case messages.ClockInMsg, messages.ClockOutMsg:
+		m.UpdateTable()
 
 	case store.StateMutatedMsg:
 		switch msg.Field {
-		case store.FIELD_ENTRIES, store.FIELD_LANGUAGE, store.FIELD_ACTIVE_VIEW:
-			m.table = createTable()
-			m.entries = store.State().Entries
-			m.calculateTableRows()
-			m.table.SetCursor(m.cursor)
+		case
+			store.FIELD_ENTRIES,
+			store.FIELD_ACTIVE_ENTRY,
+			store.FIELD_ACTIVE_VIEW:
+			m.UpdateTable()
+		case store.FIELD_LANGUAGE:
+			m.RecreateTable()
 		}
 	}
 
@@ -112,13 +87,62 @@ func (m Model) View() string {
 	return m.table.View()
 }
 
-func (m *Model) calculateTableRows() {
-	rows := make([]table.Row, 0)
+func (m *Model) RecreateTable() {
+	m.table = getTable()
+	m.table.SetCursor(getCursor())
+}
 
+func (m *Model) UpdateTable() {
+	rows, height := getRows()
+
+	m.table.SetRows(rows)
+	m.table.SetHeight(height)
+	m.table.SetCursor(getCursor())
+}
+
+func getTable() table.Model {
+	t := table.New(
+		table.WithColumns(getColumns()),
+		table.WithFocused(true),
+	)
+
+	s := table.DefaultStyles()
+	s.Header = s.Header.
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(types.Theme.Primary)).
+		Foreground(lipgloss.Color(types.Theme.Text)).
+		BorderBottom(true)
+	s.Selected = s.Selected.
+		Foreground(lipgloss.Color(types.Theme.Text)).
+		Background(lipgloss.Color(types.Theme.Primary)).
+		Bold(false)
+	t.SetStyles(s)
+
+	rows, height := getRows()
+	t.SetRows(rows)
+	t.SetHeight(height)
+
+	return t
+}
+
+func getColumns() []table.Column {
+	return []table.Column{
+		{Title: store.State().Strings().KIND, Width: 10},
+		{Title: store.State().Strings().START, Width: 10},
+		{Title: store.State().Strings().END, Width: 10},
+		{Title: store.State().Strings().DURATION, Width: 10},
+		{Title: store.State().Strings().SUM, Width: 10},
+	}
+}
+
+func getRows() (rows []table.Row, height int) {
+	rows = make([]table.Row, 0)
+
+	entries := store.State().Entries
 	totalWorkTime := store.State().GetElapsedWorkTime()
 
-	for i := len(m.entries) - 1; i >= 0; i-- {
-		entry := m.entries[i]
+	for i := len(entries) - 1; i >= 0; i-- {
+		entry := entries[i]
 
 		var kind string
 		var start string
@@ -145,21 +169,21 @@ func (m *Model) calculateTableRows() {
 		if entry.Kind == types.EntryKindWork {
 			totalWorkTime = totalWorkTime + entry.Duration()*-1
 		}
-
 	}
-
-	m.table.SetRows(rows)
 
 	const MAX_ROWS = 10
 
+	height = 2
 	if len(rows) > MAX_ROWS {
-		m.table.SetHeight(MAX_ROWS + 2)
+		height += MAX_ROWS
 	} else {
-		m.table.SetHeight(len(rows) + 2)
+		height += len(rows)
 	}
+
+	return rows, height
 }
 
-func (m *Model) getSelectedEntry() *types.Entry {
-	cursor := m.table.Cursor()
-	return &m.entries[len(m.entries)-cursor-1]
+func getCursor() int {
+	index := store.State().GetActiveEntryIndex()
+	return len(store.State().Entries) - index - 1
 }

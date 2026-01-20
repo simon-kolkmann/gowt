@@ -6,6 +6,20 @@ import (
 	"time"
 )
 
+func (state state) GetActiveEntryIndex() int {
+	if state.ActiveEntry == nil {
+		return -1
+	}
+
+	for i, entry := range state.Entries {
+		if entry.Id == state.ActiveEntry.Id {
+			return i
+		}
+	}
+
+	return -1
+}
+
 // Returns the last time the user clocked in.
 //
 // If the user is currently clocked out, a zeroed

@@ -3,6 +3,7 @@ package store
 import (
 	"gowt/i18n"
 	"gowt/types"
+	"slices"
 	"time"
 )
 
@@ -98,12 +99,43 @@ func SetActiveEntry(v *types.Entry) mutation {
 	}
 }
 
+func SetActiveEntryByIndex(index int) mutation {
+	return mutation{
+		Fields: []field{FIELD_ACTIVE_ENTRY},
+		Mutate: func(state *state) {
+			internalState.ActiveEntry = &internalState.Entries[index]
+		},
+	}
+}
+
 func ModifyActiveEntry(start, end time.Time) mutation {
 	return mutation{
 		Fields: []field{FIELD_ACTIVE_ENTRY, FIELD_ENTRIES},
 		Mutate: func(state *state) {
 			state.ActiveEntry.Start = start
 			state.ActiveEntry.End = end
+		},
+	}
+}
+
+func DeleteActiveEntry() mutation {
+	return mutation{
+		Fields: []field{FIELD_ACTIVE_ENTRY, FIELD_ENTRIES},
+		Mutate: func(state *state) {
+			idx := state.GetActiveEntryIndex()
+
+			if idx == -1 {
+				return
+			}
+
+			state.Entries = slices.Delete(state.Entries, idx, idx+1)
+			if idx > 0 {
+				state.ActiveEntry = &state.Entries[idx-1]
+			} else if idx == 0 && len(state.Entries) > 0 {
+				state.ActiveEntry = &state.Entries[0]
+			} else {
+				state.ActiveEntry = nil
+			}
 		},
 	}
 }
