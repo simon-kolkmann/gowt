@@ -45,18 +45,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	style := lipgloss.NewStyle().Bold(true)
+	style := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#000")).Padding(1, 4).Width(50).Align(lipgloss.Center)
 
 	if store.State().IsClockedIn() {
 		template := store.State().Strings().CLOCKED_IN
 		lastClockIn := m.lastClockIn.Format(time.TimeOnly)
 		s := strings.Replace(template, "$time", lastClockIn, 1)
-		return style.Foreground(lipgloss.Color(types.Theme.Success)).Render(s)
+		return style.Background(lipgloss.Color(types.Theme.Success)).Render(s)
 	} else if store.State().IsAtBreak() {
 		s := store.State().Strings().AT_BREAK
-		return style.Foreground(lipgloss.Color(types.Theme.Warn)).Render(s)
+		return style.Background(lipgloss.Color(types.Theme.Warn)).Render(s)
 	} else {
 		s := store.State().Strings().CLOCKED_OUT
-		return style.Foreground(lipgloss.Color(types.Theme.Error)).Render(s)
+		return style.Background(lipgloss.Color(types.Theme.Error)).Render(s)
 	}
 }

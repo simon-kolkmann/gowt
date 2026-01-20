@@ -141,7 +141,7 @@ func (view ViewClock) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (view ViewClock) View() string {
-	row := lipgloss.NewStyle().Margin(0, 0, 1, 0).Render
+	row := lipgloss.NewStyle().Margin(0, 0, 1, 0).Width(50).Render
 
 	estimatedEndOfWorkday := view.getEstimatedEndOfWorkdayAsString()
 
@@ -159,9 +159,9 @@ func (view ViewClock) View() string {
 	components := []string{}
 	components = append(components,
 		row(strings.Replace(store.State().Strings().CURRENT_TIME, "$time", view.now, 1)),
+		row(strings.Replace(store.State().Strings().ESTIMATED_END_OF_WORKDAY, "$time", estimatedEndOfWorkday, 1)),
 		row(view.lastClockIn.View()),
 		row(view.progressWork.View()),
-		row(store.State().Strings().ESTIMATED_END_OF_WORKDAY+": "+estimatedEndOfWorkday),
 	)
 
 	if len(store.State().Entries) > 0 {
@@ -169,7 +169,7 @@ func (view ViewClock) View() string {
 	}
 
 	return lipgloss.JoinVertical(
-		lipgloss.Center,
+		lipgloss.Left,
 		components...,
 	)
 }

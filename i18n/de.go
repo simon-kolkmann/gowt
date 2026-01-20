@@ -12,7 +12,7 @@ var de Strings = Strings{
 	CLOCKED_IN:               "Eingestempelt seit $time Uhr.",
 	CLOCKED_OUT:              "Derzeit nicht eingestempelt.",
 	AT_BREAK:                 "In Pause.",
-	ESTIMATED_END_OF_WORKDAY: "Voraussichtlicher Feierabend",
+	ESTIMATED_END_OF_WORKDAY: "Frühstmöglicher Feierabend: $time Uhr.",
 
 	ENTRY_KIND: func(v types.EntryKind) string {
 		switch v {

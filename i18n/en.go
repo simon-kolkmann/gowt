@@ -12,7 +12,7 @@ var en Strings = Strings{
 	CLOCKED_IN:               "Clocked in since $time.",
 	CLOCKED_OUT:              "Currently not clocked in.",
 	AT_BREAK:                 "Having a break.",
-	ESTIMATED_END_OF_WORKDAY: "Estimated end of workday",
+	ESTIMATED_END_OF_WORKDAY: "Earliest end of workday: $time.",
 
 	ENTRY_KIND: func(v types.EntryKind) string {
 		switch v {
