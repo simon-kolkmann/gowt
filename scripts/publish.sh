@@ -18,7 +18,9 @@ ASSET_UPLOAD_URL=$(cat response.json | jq -r .upload_url)
 # upload assets
 echo "Uploading assets to $ASSET_UPLOAD_URL"
 
-ARTIFACTS=("gowt-linux-amd64.tar.gz" "gowt-win-amd64.tar.gz")
+# find all archives in the build directory
+shopt -s nullglob  # ensures empty array if no matches
+ARTIFACTS=(build/*.tar.gz)
 
 for ARTIFACT in "${ARTIFACTS[@]}"; do
   echo "Uploading: $ARTIFACT"
@@ -30,6 +32,6 @@ for ARTIFACT in "${ARTIFACTS[@]}"; do
     -X POST \
     -H "Content-Type: multipart/form-data" \
     -H "Authorization: token $CODEBERG_TOKEN" \
-    -F "attachment=@./build/$ARTIFACT" \
+    -F "attachment=@./$ARTIFACT" \
     $ASSET_UPLOAD_URL
 done

@@ -1,17 +1,36 @@
 #!/bin/bash
 
 echo 'Cleaning build directory'
-rm -r build
+rm -rf build
 
 mkdir build
 cd build
 
-echo '[1/2] Building linux/amd64...'
-GOARCH=amd64 GOOS=linux go build -ldflags="-X main.version=$(git describe --always --tags --dirty)" -o gowt-linux-amd64 ..
-tar -czvf gowt-linux-amd64.tar.gz gowt-linux-amd64
+VERSION=$(git describe --always --tags --dirty)
+BINARY_BASE_NAME=gowt-$VERSION
 
-echo '[2/2] Building windows/amd64...'
-GOARCH=amd64 GOOS=windows go build -ldflags="-X main.version=$(git describe --always --tags --dirty)" -o gowt-win-amd64 ..
-tar -czvf gowt-win-amd64.tar.gz gowt-win-amd64
+# build targets
+declare -a TARGETS=(
+	"linux/amd64"
+	"windows/amd64"
+)
+
+for TARGET in "${TARGETS[@]}"; do
+	# split the target into GOOS and GOARCH
+	IFS='/' read -r GOOS GOARCH <<< "$TARGET"
+
+	BINARY_NAME=$BINARY_BASE_NAME-$GOOS-$GOARCH
+
+	echo "Building $TARGET..."
+
+	# compile
+	GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="-X main.version=$VERSION" -o "$BINARY_NAME" ..
+
+	# make executable
+	chmod +x "$BINARY_NAME"
+
+	# create archive
+	tar -czvf "$BINARY_NAME.tar.gz" "$BINARY_NAME"
+done
 
 echo 'Done!'
