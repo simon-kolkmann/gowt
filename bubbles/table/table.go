@@ -65,7 +65,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-	case messages.ClockInMsg, messages.ClockOutMsg:
+	case util.TimeTickMsg, messages.ClockInMsg, messages.ClockOutMsg:
 		m.UpdateTable()
 
 	case store.StateMutatedMsg:
