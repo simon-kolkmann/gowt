@@ -38,10 +38,7 @@ const (
 	FIELD_LANGUAGE         field = "Language"
 )
 
-type mutation = struct {
-	Fields []field
-	Mutate func(*state)
-}
+type mutation = func(*state) []field
 
 func Initialize() tea.Cmd {
 	cmds := make([]tea.Cmd, 0)
@@ -65,9 +62,9 @@ func Commit(mutations ...mutation) tea.Cmd {
 
 	for _, mutation := range mutations {
 		before := internalState
-		mutation.Mutate(&internalState)
+		fields := mutation(&internalState)
 
-		for _, field := range mutation.Fields {
+		for _, field := range fields {
 			cmds = append(cmds, func() tea.Msg {
 				return StateMutatedMsg{
 					Field:  field,
