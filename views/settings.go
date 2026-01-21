@@ -20,16 +20,18 @@ func NewSettings() ViewSettings {
 	hoursPerDay := textinput.New()
 	hoursPerDay.Placeholder = "1h23m4s"
 	hoursPerDay.CharLimit = 10
-	hoursPerDay.Prompt = store.State().Strings().HOURS_PER_DAY_LABEL + ":\n"
+	hoursPerDay.Width = 10
 	hoursPerDay.Validate = util.Validators.Time
+	hoursPerDay.PlaceholderStyle = lipgloss.NewStyle().Faint(true)
 	hoursPerDay.Cursor.Blink = true
 	hoursPerDay.Focus()
 
 	dailySetupTime := textinput.New()
-	dailySetupTime.Placeholder = "10m"
+	dailySetupTime.Placeholder = "5m"
 	dailySetupTime.CharLimit = 10
-	dailySetupTime.Prompt = store.State().Strings().DAILY_SETUP_TIME_LABEL + ":\n"
+	dailySetupTime.Width = 10
 	dailySetupTime.Validate = util.Validators.Time
+	dailySetupTime.PlaceholderStyle = lipgloss.NewStyle().Faint(true)
 
 	return ViewSettings{
 		hoursPerDay:    hoursPerDay,
@@ -66,6 +68,11 @@ func (view ViewSettings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			view.hoursPerDay.SetValue(store.State().HoursPerDay.String())
 			view.dailySetupTime.SetValue(store.State().DailySetupTime.String())
 			view.hoursPerDay.CursorEnd()
+			view.hoursPerDay.Prompt = store.State().Strings().HOURS_PER_DAY_LABEL + ":\n"
+			view.dailySetupTime.Prompt = store.State().Strings().DAILY_SETUP_TIME_LABEL + ":\n"
+		case store.FIELD_LANGUAGE:
+			view.hoursPerDay.Prompt = store.State().Strings().HOURS_PER_DAY_LABEL + ":\n"
+			view.dailySetupTime.Prompt = store.State().Strings().DAILY_SETUP_TIME_LABEL + ":\n"
 		}
 	}
 
