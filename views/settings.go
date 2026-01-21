@@ -65,8 +65,13 @@ func (view ViewSettings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case store.StateMutatedMsg:
 		switch msg.Field {
 		case store.FIELD_ACTIVE_VIEW:
-			view.hoursPerDay.SetValue(store.State().HoursPerDay.String())
-			view.dailySetupTime.SetValue(store.State().DailySetupTime.String())
+			if store.State().HoursPerDay != 0 {
+				view.hoursPerDay.SetValue(store.State().HoursPerDay.String())
+			}
+
+			if store.State().DailySetupTime != 0 {
+				view.dailySetupTime.SetValue(store.State().DailySetupTime.String())
+			}
 			view.hoursPerDay.CursorEnd()
 			view.hoursPerDay.Prompt = store.State().Strings().HOURS_PER_DAY_LABEL + ":\n"
 			view.dailySetupTime.Prompt = store.State().Strings().DAILY_SETUP_TIME_LABEL + ":\n"
