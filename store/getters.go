@@ -67,6 +67,18 @@ func (state state) GetElapsedWorkTime() time.Duration {
 	return elapsed
 }
 
+func (state state) GetElapsedBreakTime() time.Duration {
+	var elapsed time.Duration
+
+	for _, entry := range internalState.Entries {
+		if entry.Kind == types.EntryKindBreak {
+			elapsed += entry.Duration()
+		}
+	}
+
+	return elapsed
+}
+
 func (state state) GetRemainingWorkTime() time.Duration {
 	return time.Duration(state.HoursPerDay - state.GetElapsedWorkTime())
 }

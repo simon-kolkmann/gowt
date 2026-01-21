@@ -131,7 +131,8 @@ func getColumns() []table.Column {
 		{Title: store.State().Strings().START, Width: 10},
 		{Title: store.State().Strings().END, Width: 10},
 		{Title: store.State().Strings().DURATION, Width: 10},
-		{Title: store.State().Strings().SUM, Width: 10},
+		{Title: store.State().Strings().SUMMARIZED_WORK_TIME, Width: 15},
+		{Title: store.State().Strings().SUMMARIZED_BREAK_TIME, Width: 15},
 	}
 }
 
@@ -140,6 +141,7 @@ func getRows() (rows []table.Row, height int) {
 
 	entries := store.State().Entries
 	totalWorkTime := store.State().GetElapsedWorkTime()
+	totalBreakTime := store.State().GetElapsedBreakTime()
 
 	for i := len(entries) - 1; i >= 0; i-- {
 		entry := entries[i]
@@ -148,14 +150,21 @@ func getRows() (rows []table.Row, height int) {
 		var start string
 		var end string
 		var duration string
-		var sum string
+		var summarizedWorkTime string
+		var summarizedBreakTime string
 
 		kind = store.State().Strings().ENTRY_KIND(entry.Kind)
 		start, end, duration = entry.ToString()
-		sum = totalWorkTime.String()
 
-		if entry.Kind == types.EntryKindBreak {
-			sum = "-"
+		switch entry.Kind {
+		case types.EntryKindWork:
+			summarizedWorkTime = totalWorkTime.String()
+			summarizedBreakTime = "-"
+			totalWorkTime = totalWorkTime + entry.Duration()*-1
+		case types.EntryKindBreak:
+			summarizedBreakTime = totalBreakTime.String()
+			summarizedWorkTime = "-"
+			totalBreakTime = totalBreakTime + entry.Duration()*-1
 		}
 
 		rows = append(rows, table.Row{
@@ -163,12 +172,9 @@ func getRows() (rows []table.Row, height int) {
 			start,
 			end,
 			duration,
-			sum,
+			summarizedWorkTime,
+			summarizedBreakTime,
 		})
-
-		if entry.Kind == types.EntryKindWork {
-			totalWorkTime = totalWorkTime + entry.Duration()*-1
-		}
 	}
 
 	const MAX_ROWS = 10

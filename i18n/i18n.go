@@ -16,7 +16,8 @@ type Strings struct {
 	START                    string
 	END                      string
 	DURATION                 string
-	SUM                      string
+	SUMMARIZED_WORK_TIME     string
+	SUMMARIZED_BREAK_TIME    string
 	CURRENT_TIME             string
 	CLOCKED_IN               string
 	CLOCKED_OUT              string
