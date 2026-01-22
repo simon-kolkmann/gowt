@@ -122,8 +122,15 @@ func (a app) View() string {
 	box := lipgloss.
 		NewStyle().Align(lipgloss.Center).
 		Padding(1, 2, 0, 2).
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color(types.Theme.Primary))
+		Border(lipgloss.RoundedBorder())
+
+	if store.State().IsClockedIn() {
+		box = box.BorderForeground(lipgloss.Color(types.Theme.Success))
+	} else if store.State().IsAtBreak() {
+		box = box.BorderForeground(lipgloss.Color(types.Theme.Warn))
+	} else {
+		box = box.BorderForeground(lipgloss.Color(types.Theme.Error))
+	}
 
 	return box.Render(
 		lipgloss.JoinVertical(
