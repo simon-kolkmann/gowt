@@ -3,6 +3,7 @@ package i18n
 import "gowt/types"
 
 var de Strings = Strings{
+	VIEW_CLOCK:               "Uhr",
 	KIND:                     "Typ",
 	START:                    "Beginn",
 	END:                      "Ende",
@@ -26,10 +27,11 @@ var de Strings = Strings{
 		}
 	},
 
-	VIEW_CAPTION_SETTINGS:  "Einstellungen",
+	VIEW_SETTINGS:          "Einstellungen",
 	HOURS_PER_DAY_LABEL:    "tägliche Arbeitszeit",
 	DAILY_SETUP_TIME_LABEL: "tägliche Rüstzeit",
 
+	VIEW_EDIT:          "Bearbeiten",
 	EDIT_ENTRY:         "Eintrag bearbeiten",
 	ENTRY_SAVE_SUCCESS: "Die Eingaben wurden gespeichert.",
 	ENTRY_SAVE_FAILED:  "Mindestens eine Eingabe ist fehlerhaft und kann nicht gespeichert werden.",

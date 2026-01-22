@@ -12,6 +12,7 @@ const (
 )
 
 type Strings struct {
+	VIEW_CLOCK               string
 	KIND                     string
 	START                    string
 	END                      string
@@ -26,10 +27,11 @@ type Strings struct {
 
 	ENTRY_KIND func(v types.EntryKind) string
 
-	VIEW_CAPTION_SETTINGS  string
+	VIEW_SETTINGS          string
 	HOURS_PER_DAY_LABEL    string
 	DAILY_SETUP_TIME_LABEL string
 
+	VIEW_EDIT          string
 	EDIT_ENTRY         string
 	ENTRY_SAVE_SUCCESS string
 	ENTRY_SAVE_FAILED  string

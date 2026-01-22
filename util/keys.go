@@ -43,7 +43,7 @@ var Keys KeyMap = KeyMap{
 
 // FullHelp returns keybindings for the expanded help view. It's part of the
 // key.Map interface.
-func (k KeyMap) FullHelp(view types.View, strings i18n.Strings) [][]key.Binding {
+func (k KeyMap) FullHelp(view types.View, activeEntry *types.Entry, strings i18n.Strings) [][]key.Binding {
 	Keys.Up.SetHelp("↑", strings.HELP_MOVE_UP)
 	Keys.Down.SetHelp("↓", strings.HELP_MOVE_DOWN)
 	Keys.AltEnter.SetHelp(strings.HELP_BREAK_KEY, strings.HELP_BREAK)
@@ -59,9 +59,17 @@ func (k KeyMap) FullHelp(view types.View, strings i18n.Strings) [][]key.Binding 
 		Keys.Enter.SetHelp("enter", strings.HELP_CLOCK_IN_OUT)
 		Keys.CtrlLeft.SetHelp(strings.HELP_PREV_VIEW_KEY, strings.HELP_VIEW_NAME(types.ViewSettings))
 		Keys.CtrlRight.SetHelp(strings.HELP_NEXT_VIEW_KEY, strings.HELP_VIEW_NAME(types.ViewEdit))
-		return [][]key.Binding{
-			{k.CtrlLeft, k.CtrlRight, k.CtrlL, k.Quit},                 // first column
-			{k.Enter, k.AltEnter, k.Delete, k.AltDelete, k.Up, k.Down}, // second column
+
+		if activeEntry == nil {
+			return [][]key.Binding{
+				{k.CtrlLeft, k.CtrlL, k.Quit},                              // first column
+				{k.Enter, k.AltEnter, k.Delete, k.AltDelete, k.Up, k.Down}, // second column
+			}
+		} else {
+			return [][]key.Binding{
+				{k.CtrlLeft, k.CtrlRight, k.CtrlL, k.Quit},                 // first column
+				{k.Enter, k.AltEnter, k.Delete, k.AltDelete, k.Up, k.Down}, // second column
+			}
 		}
 
 	case types.ViewSettings:

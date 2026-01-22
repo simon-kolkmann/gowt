@@ -73,11 +73,11 @@ func (view ViewSettings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				view.dailySetupTime.SetValue(store.State().DailySetupTime.String())
 			}
 			view.hoursPerDay.CursorEnd()
-			view.hoursPerDay.Prompt = store.State().Strings().HOURS_PER_DAY_LABEL + ":\n"
-			view.dailySetupTime.Prompt = store.State().Strings().DAILY_SETUP_TIME_LABEL + ":\n"
+			view.hoursPerDay.Prompt = store.State().Strings().HOURS_PER_DAY_LABEL + ": "
+			view.dailySetupTime.Prompt = store.State().Strings().DAILY_SETUP_TIME_LABEL + ": "
 		case store.FIELD_LANGUAGE:
-			view.hoursPerDay.Prompt = store.State().Strings().HOURS_PER_DAY_LABEL + ":\n"
-			view.dailySetupTime.Prompt = store.State().Strings().DAILY_SETUP_TIME_LABEL + ":\n"
+			view.hoursPerDay.Prompt = store.State().Strings().HOURS_PER_DAY_LABEL + ": "
+			view.dailySetupTime.Prompt = store.State().Strings().DAILY_SETUP_TIME_LABEL + ": "
 		}
 	}
 
@@ -88,15 +88,17 @@ func (view ViewSettings) View() string {
 	box := lipgloss.
 		NewStyle().Align(lipgloss.Center).
 		Padding(1, 2, 2, 2).
-		Border(lipgloss.RoundedBorder()).
+		Border(lipgloss.NormalBorder()).
 		BorderForeground(lipgloss.Color("#ffffff"))
+
+	inputBox := lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
 
 	return box.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Left,
-			store.State().Strings().VIEW_CAPTION_SETTINGS+"\n",
-			view.hoursPerDay.View()+"\n",
-			view.dailySetupTime.View()+"\n",
+			store.State().Strings().VIEW_SETTINGS+"\n",
+			inputBox.Render(view.hoursPerDay.View()),
+			inputBox.Render(view.dailySetupTime.View()),
 		),
 	)
 }

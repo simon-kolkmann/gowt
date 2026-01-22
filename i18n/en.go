@@ -3,6 +3,7 @@ package i18n
 import "gowt/types"
 
 var en Strings = Strings{
+	VIEW_CLOCK:               "Clock",
 	KIND:                     "Kind",
 	START:                    "Start",
 	END:                      "End",
@@ -26,10 +27,11 @@ var en Strings = Strings{
 		}
 	},
 
-	VIEW_CAPTION_SETTINGS:  "Settings",
+	VIEW_SETTINGS:          "Settings",
 	HOURS_PER_DAY_LABEL:    "Daily work time",
 	DAILY_SETUP_TIME_LABEL: "Daily set-up time",
 
+	VIEW_EDIT:          "Edit",
 	EDIT_ENTRY:         "Edit entry",
 	ENTRY_SAVE_SUCCESS: "Entry saved.",
 	ENTRY_SAVE_FAILED:  "At least one value is invalid and cannot be saved.",
