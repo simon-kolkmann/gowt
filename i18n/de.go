@@ -32,7 +32,6 @@ var de Strings = Strings{
 	DAILY_SETUP_TIME_LABEL: "tägliche Rüstzeit",
 
 	VIEW_EDIT:          "Bearbeiten",
-	EDIT_ENTRY:         "Eintrag bearbeiten",
 	ENTRY_SAVE_SUCCESS: "Die Eingaben wurden gespeichert.",
 	ENTRY_SAVE_FAILED:  "Mindestens eine Eingabe ist fehlerhaft und kann nicht gespeichert werden.",
 	NO_ENTRY_SELECTED:  "Kein Eintrag ausgewählt.",

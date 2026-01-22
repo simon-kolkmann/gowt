@@ -87,18 +87,18 @@ func (view ViewSettings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (view ViewSettings) View() string {
 	box := lipgloss.
 		NewStyle().Align(lipgloss.Center).
-		Padding(1, 2, 2, 2).
+		Padding(0, 2, 0, 2).
 		Border(lipgloss.NormalBorder()).
 		BorderForeground(lipgloss.Color("#ffffff"))
 
-	inputBox := lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
+	caption := lipgloss.NewStyle().Bold(true).Underline(true).PaddingBottom(1)
 
 	return box.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Left,
-			store.State().Strings().VIEW_SETTINGS+"\n",
-			inputBox.Render(view.hoursPerDay.View()),
-			inputBox.Render(view.dailySetupTime.View()),
+			caption.Render(store.State().Strings().VIEW_SETTINGS),
+			view.hoursPerDay.View(),
+			view.dailySetupTime.View(),
 		),
 	)
 }

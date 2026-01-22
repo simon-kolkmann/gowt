@@ -99,11 +99,11 @@ func (view ViewEdit) View() string {
 
 	box := lipgloss.
 		NewStyle().
-		Padding(1, 2, 1, 2).
-		Border(lipgloss.RoundedBorder()).
+		Padding(0, 2, 0, 2).
+		Border(lipgloss.NormalBorder()).
 		BorderForeground(lipgloss.Color("#ffffff"))
 
-	caption := lipgloss.NewStyle().Bold(true).Underline(true)
+	caption := lipgloss.NewStyle().Bold(true).Underline(true).PaddingBottom(1)
 	message := lipgloss.NewStyle().Bold(true)
 
 	if view.hasError() {
@@ -116,7 +116,7 @@ func (view ViewEdit) View() string {
 		return box.Render(
 			lipgloss.JoinVertical(
 				lipgloss.Left,
-				caption.Render(store.State().Strings().EDIT_ENTRY+"\n"),
+				caption.Render(store.State().Strings().VIEW_EDIT),
 				store.State().Strings().NO_ENTRY_SELECTED,
 			),
 		)
@@ -125,7 +125,7 @@ func (view ViewEdit) View() string {
 	return box.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Left,
-			caption.Render(store.State().Strings().EDIT_ENTRY+"\n"),
+			caption.Render(store.State().Strings().VIEW_EDIT),
 			store.State().Strings().KIND+": "+store.State().Strings().ENTRY_KIND(view.entry.Kind),
 			lipgloss.JoinHorizontal(
 				lipgloss.Center,

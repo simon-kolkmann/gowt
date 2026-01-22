@@ -32,7 +32,6 @@ type Strings struct {
 	DAILY_SETUP_TIME_LABEL string
 
 	VIEW_EDIT          string
-	EDIT_ENTRY         string
 	ENTRY_SAVE_SUCCESS string
 	ENTRY_SAVE_FAILED  string
 	NO_ENTRY_SELECTED  string
