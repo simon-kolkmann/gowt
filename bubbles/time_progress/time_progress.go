@@ -2,7 +2,7 @@ package time_progress
 
 import (
 	"gowt/types"
-	"strconv"
+	"gowt/util"
 	"time"
 
 	"github.com/charmbracelet/bubbles/progress"
@@ -72,8 +72,7 @@ func (m Model) View() string {
 	elapsed := m.Elapsed.String()
 	target := m.Target.String()
 	remaining := m.Remaining().String()
-	percent := m.RemainingInPercent()
-	percentAsString := strconv.FormatFloat(percent, 'f', 2, 64) + "%"
+	percent, percentAsString := util.ElapsedInPercent(m.Elapsed, m.Target)
 
 	m.progress.FullColor = m.Color
 
@@ -95,8 +94,4 @@ func (m Model) View() string {
 
 func (m *Model) Remaining() time.Duration {
 	return m.Target - m.Elapsed
-}
-
-func (m *Model) RemainingInPercent() float64 {
-	return m.Elapsed.Seconds() / (m.Target.Seconds() / 100)
 }

@@ -84,6 +84,10 @@ func (model *Model) UpdateTab(tab Tab) {
 		return candidate.Value == tab.Value
 	})
 
+	if idx == -1 {
+		return
+	}
+
 	model.tabs[idx] = tab
 }
 

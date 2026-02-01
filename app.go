@@ -14,28 +14,42 @@ import (
 )
 
 type app struct {
-	tabs     tabs.Model
-	clock    tea.Model
-	settings tea.Model
-	edit     tea.Model
-	help     tea.Model
-	width    int
-	height   int
+	tabsView     tabs.Model
+	tabsProgress tabs.Model
+	clock        tea.Model
+	settings     tea.Model
+	edit         tea.Model
+	help         tea.Model
+	width        int
+	height       int
 }
 
+const (
+	TAB_PROGRESS_WORK int = iota
+	TAB_PROGRESS_BREAKS
+)
+
 func NewApp() app {
-	tabs := tabs.NewTabs([]tabs.Tab{
+	tabsView := tabs.NewTabs([]tabs.Tab{
 		{Text: store.State().Strings().VIEW_SETTINGS, Value: types.ViewSettings},
 		{Text: store.State().Strings().VIEW_CLOCK, Value: types.ViewClock},
 		{Text: store.State().Strings().VIEW_EDIT, Value: types.ViewEdit},
 	})
 
+	tabsProgress := tabs.NewTabs([]tabs.Tab{
+		{Text: "35%", Value: TAB_PROGRESS_WORK},
+		{Text: "12%", Value: TAB_PROGRESS_BREAKS},
+	})
+
+	tabsProgress.Position = lipgloss.Right
+
 	return app{
-		tabs:     tabs,
-		clock:    views.NewClock(),
-		settings: views.NewSettings(),
-		edit:     views.NewEdit(),
-		help:     help.NewHelp(),
+		tabsView:     tabsView,
+		tabsProgress: tabsProgress,
+		clock:        views.NewClock(),
+		settings:     views.NewSettings(),
+		edit:         views.NewEdit(),
+		help:         help.NewHelp(),
 	}
 }
 
@@ -78,29 +92,36 @@ func (a app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+	case util.TimeTickMsg:
+		a.updateProgressTabs()
+
 	case store.StateMutatedMsg:
 		switch msg.Field {
 		case store.FIELD_ACTIVE_VIEW:
-			a.tabs.SetActive(store.State().ActiveView)
+			a.tabsView.SetActive(store.State().ActiveView)
+		case store.FIELD_ENTRIES:
+			a.updateProgressTabs()
 		case store.FIELD_ACTIVE_ENTRY:
 			if store.State().ActiveEntry == nil {
-				a.tabs.SetInactive([]any{types.ViewEdit})
+				a.tabsView.SetInactive([]any{types.ViewEdit})
 			} else {
-				a.tabs.SetInactive([]any{})
+				a.tabsView.SetInactive([]any{})
 			}
 		case store.FIELD_LANGUAGE:
-			a.tabs.UpdateTab(tabs.Tab{
+			a.tabsView.UpdateTab(tabs.Tab{
 				Text:  store.State().Strings().VIEW_SETTINGS,
 				Value: types.ViewSettings},
 			)
-			a.tabs.UpdateTab(tabs.Tab{
+			a.tabsView.UpdateTab(tabs.Tab{
 				Text:  store.State().Strings().VIEW_CLOCK,
 				Value: types.ViewClock},
 			)
-			a.tabs.UpdateTab(tabs.Tab{
+			a.tabsView.UpdateTab(tabs.Tab{
 				Text:  store.State().Strings().VIEW_EDIT,
 				Value: types.ViewEdit},
 			)
+
+			a.updateProgressTabs()
 		}
 	}
 
@@ -129,7 +150,9 @@ func (a app) View() string {
 
 	header := lipgloss.NewStyle().
 		Border(lipgloss.NormalBorder(), false, false, true, false).
-		Render(a.tabs.View())
+		MarginBottom(1).
+		Width(a.width - 6).
+		Render(addSpacerBetween(a.tabsView.View(), a.tabsProgress.View(), a.width-6))
 
 	footer := lipgloss.NewStyle().
 		Align(lipgloss.Center).
@@ -189,12 +212,38 @@ func (a *app) UpdateAlwaysVisible(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd = []tea.Cmd{}
 
-	model, cmd := a.tabs.Update(msg)
-	a.tabs = model.(tabs.Model)
+	model, cmd := a.tabsView.Update(msg)
+	a.tabsView = model.(tabs.Model)
 	cmds = append(cmds, cmd)
 
 	a.help, cmd = a.help.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return tea.Batch(cmds...)
+}
+
+func addSpacerBetween(a, b string, width int) string {
+	spacer := lipgloss.
+		NewStyle().
+		Width(width - lipgloss.Width(a) - lipgloss.Width(b)).
+		Render()
+
+	return lipgloss.JoinHorizontal(lipgloss.Left, a, spacer, b)
+}
+
+func (a *app) updateProgressTabs() {
+	workTime := store.State().GetElapsedWorkTime()
+	_, percent := util.ElapsedInPercent(workTime, store.State().HoursPerDay)
+
+	breakTime := store.State().GetElapsedBreakTime()
+
+	a.tabsProgress.UpdateTab(tabs.Tab{
+		Value: TAB_PROGRESS_WORK,
+		Text:  store.State().Strings().ENTRY_KIND(types.EntryKindWork) + ": " + workTime.String() + " (" + percent + ")",
+	})
+
+	a.tabsProgress.UpdateTab(tabs.Tab{
+		Value: TAB_PROGRESS_BREAKS,
+		Text:  store.State().Strings().ENTRY_KIND(types.EntryKindBreak) + ": " + breakTime.String(),
+	})
 }
