@@ -7,6 +7,7 @@ import (
 	"gowt/types"
 	"gowt/util"
 	"gowt/views"
+	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -166,8 +167,16 @@ func (a app) View() string {
 		Render(activeView)
 
 	box := lipgloss.
-		NewStyle().Align(lipgloss.Center).
+		NewStyle().
+		Align(lipgloss.Center).
 		Border(lipgloss.NormalBorder())
+
+	// blinking border if the user is clocked in and has no remaining work time
+	if (store.State().IsClockedIn() || store.State().IsAtBreak()) &&
+		store.State().GetRemainingWorkTime() < 0 &&
+		time.Now().Second()%2 == 0 {
+		box = box.Border(lipgloss.ThickBorder())
+	}
 
 	if store.State().IsClockedIn() {
 		box = box.BorderForeground(lipgloss.Color(types.Theme.Success))
